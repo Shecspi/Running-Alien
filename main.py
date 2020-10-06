@@ -138,20 +138,6 @@ def handle_mouse_press(element_rect, mouse_position):
         return False
 
 
-def scores_update(score, screen):
-    score_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 24)
-    score_text = score_font.render(f'Score: {score}', 1, (0, 0, 0))
-    score_text_rect = score_text.get_rect(bottomleft=(20, 50))
-    screen.blit(score_text, score_text_rect)
-
-
-def best_result(score, screen):
-    score_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 24)
-    score_text = score_font.render(f'The best result: {score}', 1, (0, 0, 0))
-    score_text_rect = score_text.get_rect(bottomright=(WORKPLACE_X - 20, 50))
-    screen.blit(score_text, score_text_rect)
-
-
 def initial_position():
     enemies_group.empty()
     coin_group.empty()
@@ -209,6 +195,8 @@ for i in numbers_src:
 score_group = pygame.sprite.Group()
 
 player_count = 0
+
+current_score = Score(screen, 'sprites/fonts/kenvector_future_thin.ttf', 24)
 
 
 while True:
@@ -334,8 +322,10 @@ while True:
         elif result == 'exit':
             exit()
 
-    scores_update(config.score, screen)
-    best_result(35, screen)
+    # Обновляем счетчики
+    current_score.set_text(f'Score: {config.score}', 20, 50)
+    current_score.set_text(f'The best result: 35', WORKPLACE_X - 20, 50, True)
+
     pygame.display.update()
 
     if player_count == len(player_src) - 1:
