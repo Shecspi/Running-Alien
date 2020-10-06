@@ -5,9 +5,6 @@ import config
 
 
 class Player(pygame.sprite.Sprite):
-    is_jump = False
-    jump_count = 0
-
     def __init__(self, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('sprites/p3_walk01.png').convert()
@@ -17,10 +14,10 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, image, running=True):
         if running:
-            if self.is_jump:
-                if self.jump_count > 0:
-                    self.rect.y -= (self.jump_count ** 2) // 2
-                else:
-                    self.rect.y += (self.jump_count ** 2) // 2
+            if config.is_jump:
+                if config.jump_count > 0:
+                    self.rect.y -= (config.jump_count ** 2) // 2
+                elif config.jump_count < 0:
+                    self.rect.y += (config.jump_count ** 2) // 2
 
         self.image = pygame.image.load(image)

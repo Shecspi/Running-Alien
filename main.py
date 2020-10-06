@@ -160,9 +160,7 @@ def initial_position():
     config.is_running = True
 
     config.is_jump = False
-    config.jump_count = 11
-    player_group.is_jump = False
-    player_group.jump_count = 11
+    config.jump_count = config.jump_count_ideal
     player_group.rect.bottomleft = (150, WORKPLACE_Y - grass_y)
 
 
@@ -295,29 +293,21 @@ while True:
     # Сцена забега #
     # ------------ #
     elif config.is_running:
-        # TODO Разобраться, почему в плюсе jump_count == 11, а в минусе > -10
         if config.is_jump:
-            if config.jump_count > -10:
+            if config.jump_count >= - config.jump_count_ideal:
                 # Движение в полете. От 10 до 1 - вверх, от -1 до -9 - вниз.
+                player_group.update(f'sprites/{player_jump_src}')
                 config.jump_count -= 1
             else:
                 # Момент приземления
                 config.is_jump = False
-                config.jump_count = 11
+                config.jump_count = config.jump_count_ideal
+        else:
+            player_group.update(f'sprites/{player_src[player_count]}')
 
         grass_group.update(grass_image, grass_group, grass_x, qty_of_grass, speed_of_world)
         enemies_group.update(speed_of_world)
         coin_group.update(speed_of_world)
-
-        # В прыжке меняем спрайт персонажа
-        if config.is_jump:
-            player_group.is_jump = True
-            player_group.jump_count = config.jump_count
-            player_group.update(f'sprites/{player_jump_src}')
-        else:
-            player_group.is_jump = False
-            player_group.jump_count = config.jump_count
-            player_group.update(f'sprites/{player_src[player_count]}')
 
         # Проверяем столкновение персонажа с препятствием
         hits = pygame.sprite.spritecollide(player_group, enemies_group, False)

@@ -5,4 +5,4 @@ is_died = False  # Погиб ли персонаж
 is_jump = False
 
 score = 0
-jump_count = 11
+jump_count = jump_count_ideal = 10
