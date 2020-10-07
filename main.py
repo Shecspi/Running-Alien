@@ -1,3 +1,8 @@
+"""
+Copyright 2020 Egor Vavilov (shecspi@gmail.com)
+Licensed under the Apache License, Version 2.0
+"""
+
 from random import randint
 
 import pygame
@@ -6,103 +11,105 @@ from loguru import logger
 import config
 from coin import Coin
 from setting import *
-from score import Score
 from grass import Grass
 from player import Player
 from enemies import Enemie
 
+# TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
 
-def start_menu(pos):
+
+def start_menu(pos: tuple):
+    """
+    Displays the start menu of the game (before the gaming).
+    Displays title, two buttons 'Start' and 'Exit', the copyright information.
+    :param pos: Coordinates of mouse after click. You can use this parameter for handling button presses.
+    :return: Keyword of pressed button - 'start' of 'exit'
+    """
     screen.blit(pause_background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
-    # Надпись "Are you ready?"
-    pause_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 100)
-    pause_title = pause_font.render('Are you ready?', 1, (0, 0, 0))
-    pause_title_rect = pause_title.get_rect(center=(WORKPLACE_X // 2, 100))
-    screen.blit(pause_title, pause_title_rect)
+    # Title "Are you ready?"
+    title_rect = menu_text(WORKPLACE_X // 2, 150, 'Are you ready?', 100)
+    title_bottom_y = title_rect.y + title_rect.height
 
-    cloud_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 24)
+    # Button "Start"
+    start_rect = menu_button('sprites/green_button.png', WORKPLACE_X // 2, title_bottom_y + 50, 'Start', screen)
+    start_rect_y = start_rect.y + start_rect.height
 
-    # Кнопка "Start"
-    cloud_start_image = pygame.image.load('sprites/green_button.png').convert_alpha()
-    cloud_start_rect = cloud_start_image.get_rect(center=(WORKPLACE_X // 2, WORKPLACE_Y // 2 - 50))
-    cloud_start_text = cloud_font.render('Start', 1, (0, 0, 0))
-    cloud_start_text_rect = cloud_start_text.get_rect(center=(WORKPLACE_X // 2, WORKPLACE_Y // 2 - 50))
-    screen.blit(cloud_start_image, cloud_start_rect)
-    screen.blit(cloud_start_text, cloud_start_text_rect)
+    # Button "Exit"
+    exit_rect = menu_button('sprites/red_button.png', WORKPLACE_X // 2, start_rect_y + 50, 'Exit', screen)
+    exit_rect_y = exit_rect.y + exit_rect.height
 
-    # Кнопка "Exit"
-    cloud_exit_image = pygame.image.load('sprites/red_button.png').convert_alpha()
-    cloud_exit_rect = cloud_exit_image.get_rect(center=(WORKPLACE_X // 2, WORKPLACE_Y // 2 + 50))
-    cloud_exit_text = cloud_font.render('Exit', 1, (0, 0, 0))
-    cloud_exit_text_rect = cloud_exit_text.get_rect(center=(WORKPLACE_X // 2, WORKPLACE_Y // 2 + 50))
-    screen.blit(cloud_exit_image, cloud_exit_rect)
-    screen.blit(cloud_exit_text, cloud_exit_text_rect)
+    # Copyright
+    display_copyright(WORKPLACE_X // 2, exit_rect_y + 50)
 
     if pos:
-        print(cloud_start_rect, pos)
-        if handle_mouse_press(cloud_start_rect, pos):
+        if handle_mouse_press(start_rect, pos):
             logger.info("The button 'Start' was pressed.")
             return 'start'
-        if handle_mouse_press(cloud_exit_rect, pos):
+        if handle_mouse_press(exit_rect, pos):
             logger.info("The button 'Exit' was pressed.")
             return 'exit'
 
 
 def pause_menu(pos):
     """
-    Производит отоборажение меню паузы и производит обработку нажатия кнопок в меню.
+    Displays the pause menu of the game.
+    Displays title, two buttons 'Start' and 'Exit', the copyright information.
+    :param pos: Coordinates of mouse after click. You can use this parameter for handling button presses.
+    :return: Keyword of pressed button - 'resume' of 'exit'
     """
     # Отображает фоновое полупрозрачное изображение поверх сцены с игрой
     screen.blit(pause_background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
-    # Надпись "ПАУЗА"
-    pause_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 100)
-    pause_title = pause_font.render('PAUSE', 1, (0, 0, 0))
-    pause_title_rect = pause_title.get_rect(center=(WORKPLACE_X // 2, 100))
-    screen.blit(pause_title, pause_title_rect)
+    # Title "Pause"
+    pause_rect = menu_text(WORKPLACE_X // 2, 150, 'Pause', 100)
+    pause_bottom_y = pause_rect.y + pause_rect.height
 
     cloud_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 24)
 
     # Кнопка "Resume"
-    cloud_resume_image = pygame.image.load('sprites/yellow_button.png').convert_alpha()
-    cloud_resume_rect = cloud_resume_image.get_rect(center=(WORKPLACE_X // 2, 200))
-    cloud_resume_text = cloud_font.render('Resume', 1, (0, 0, 0))
-    cloud_resume_text_rect = cloud_resume_text.get_rect(center=(WORKPLACE_X // 2, 200))
-    screen.blit(cloud_resume_image, cloud_resume_rect)
-    screen.blit(cloud_resume_text, cloud_resume_text_rect)
+    resume_rect = menu_button('sprites/green_button.png', WORKPLACE_X // 2, pause_bottom_y + 50, 'Resume', screen)
+    resume_rect_y = resume_rect.y + resume_rect.height
 
     # Кнопка "Exit"
-    cloud_exit_image = pygame.image.load('sprites/red_button.png').convert_alpha()
-    cloud_exit_rect = cloud_exit_image.get_rect(center=(WORKPLACE_X // 2, 270))
-    cloud_exit_text = cloud_font.render('Exit', 1, (0, 0, 0))
-    cloud_exit_text_rect = cloud_exit_text.get_rect(center=(WORKPLACE_X // 2, 270))
-    screen.blit(cloud_exit_image, cloud_exit_rect)
-    screen.blit(cloud_exit_text, cloud_exit_text_rect)
+    exit_rect = menu_button('sprites/red_button.png', WORKPLACE_X // 2, resume_rect_y + 50, 'Exit', screen)
+    exit_rect_y = exit_rect.y + exit_rect.height
+
+    # Copyright
+    display_copyright(WORKPLACE_X // 2, exit_rect_y + 50)
 
     if pos:
-        if handle_mouse_press(cloud_resume_rect, pos):
+        if handle_mouse_press(resume_rect, pos):
             logger.info("The button 'Resume' was pressed.")
             return 'resume'
-        if handle_mouse_press(cloud_exit_rect, pos):
+        if handle_mouse_press(exit_rect, pos):
             logger.info("The button 'Exit' was pressed.")
             return 'exit'
 
 
 def died_menu(pos):
+    """
+    Displays the menu of the game when player was died.
+    Displays title, two buttons 'Restart' and 'Exit', the copyright information.
+    :param pos: Coordinates of mouse after click. You can use this parameter for handling button presses.
+    :return: Keyword of pressed button - 'restart' of 'exit'
+    """
     screen.blit(pause_background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
-    # Надпись "Game over?"
-    died_font = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', 100)
-    died_title = died_font.render('Game over', 1, (0, 0, 0))
-    died_title_rect = died_title.get_rect(center=(WORKPLACE_X // 2, 100))
-    screen.blit(died_title, died_title_rect)
+    # Title "Game over"
+    game_over_rect = menu_text(WORKPLACE_X // 2, 150, 'Pause', 100)
+    game_over_y = game_over_rect.y + game_over_rect.height
 
-    # Кнопка "Restart"
-    restart_rect = menu_button('sprites/green_button.png', WORKPLACE_X // 2, WORKPLACE_Y // 2 - 50, 'Restart', screen)
+    # Button "Restart"
+    restart_rect = menu_button('sprites/green_button.png', WORKPLACE_X // 2, game_over_y + 50, 'Restart', screen)
+    restart_rect_y = restart_rect.y + restart_rect.height
 
-    # Кнопка "Exit"
-    exit_rect = menu_button('sprites/red_button.png', WORKPLACE_X // 2, WORKPLACE_Y // 2 + 50, 'Exit', screen)
+    # Button "Exit"
+    exit_rect = menu_button('sprites/red_button.png', WORKPLACE_X // 2, restart_rect_y + 50, 'Exit', screen)
+    exit_rect_y = exit_rect.y + exit_rect.height
+
+    # Copyright
+    display_copyright(WORKPLACE_X // 2, exit_rect_y + 50)
 
     if pos:
         if handle_mouse_press(restart_rect, pos):
@@ -111,6 +118,41 @@ def died_menu(pos):
         if handle_mouse_press(exit_rect, pos):
             logger.info("The button 'Exit' was pressed.")
             return 'exit'
+
+
+def display_copyright(x, y):
+    """
+    Displays the copyright for some menu.
+    :param x:  Coordinate X for center of text
+    :param y: Coordinate Y for center of text
+    :return: None
+    """
+    copyright_rect = menu_text(x, y, 'Copyright 2020 Egor Vavilov (shecspi@gmail.com)', 16)
+    copyright_rect_y = copyright_rect.y + copyright_rect.height
+    menu_text(WORKPLACE_X // 2, copyright_rect_y + 20, 'Licensed under the Apache License, Version 2.0', 16)
+
+
+def menu_text(x, y, message, font_size, align='center'):
+    """
+    Displays text on the screen.
+    :param x: Coordinate X for center of text
+    :param y: Coordinate Y for center of text
+    :param message: Text
+    :param font_size: Size of font
+    :param align: Alignment of text ('left', 'right' or 'center')
+    :return: pygame.Rect of this text
+    """
+    font_src = pygame.font.Font('sprites/fonts/kenvector_future_thin.ttf', font_size)
+    title = font_src.render(message, 1, (0, 0, 0))
+    if align == 'left':
+        title_rect = title.get_rect(bottomleft=(x, y))
+    elif align == 'right':
+        title_rect = title.get_rect(bottomright=(x, y))
+    else:
+        title_rect = title.get_rect(center=(x, y))
+    screen.blit(title, title_rect)
+
+    return title_rect
 
 
 def menu_button(image_src, x, y, message, display):
@@ -127,7 +169,7 @@ def menu_button(image_src, x, y, message, display):
     return image_rect
 
 
-def handle_mouse_press(element_rect, mouse_position):
+def handle_mouse_press(element_rect: pygame.Rect, mouse_position: tuple):
     x0, y0, width, height = element_rect
     x1 = x0 + width
     y1 = y0 + height
@@ -195,8 +237,6 @@ for i in numbers_src:
 score_group = pygame.sprite.Group()
 
 player_count = 0
-
-current_score = Score(screen, 'sprites/fonts/kenvector_future_thin.ttf', 24)
 
 
 while True:
@@ -322,9 +362,11 @@ while True:
         elif result == 'exit':
             exit()
 
-    # Обновляем счетчики
-    current_score.set_text(f'Score: {config.score}', 20, 50)
-    current_score.set_text(f'The best result: 35', WORKPLACE_X - 20, 50, True)
+    # -------------- #
+    # Update counter #
+    # -------------- #
+    menu_text(20, 50, f'Score: {config.score}', 24, 'left')
+    menu_text(WORKPLACE_X - 20, 50, f'The best result: 35', 24, 'right')
 
     pygame.display.update()
 

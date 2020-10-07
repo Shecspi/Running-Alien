@@ -1,3 +1,8 @@
+"""
+Copyright 2020 Egor Vavilov (shecspi@gmail.com)
+Licensed under the Apache License, Version 2.0
+"""
+
 # Размеры экрана
 WINDOW_Y = 600
 WINDOW_X = 1000

@@ -1,3 +1,8 @@
+"""
+Copyright 2020 Egor Vavilov (shecspi@gmail.com)
+Licensed under the Apache License, Version 2.0
+"""
+
 import pygame
 
 from setting import WORKPLACE_LEFT_SIDE
