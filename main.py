@@ -221,7 +221,7 @@ for i in range(0, qty_of_grass):
 # Загружаем спрайты игрока
 player_group = Player(WORKPLACE_Y - grass_y)
 
-# Загружаем спрайты препятствий
+# Загружаем спрайты врагов
 enemies_list = []
 for i in enemies_src:
     enemies_list.append(f'sprites/enemies/{i}')
@@ -237,6 +237,10 @@ for i in numbers_src:
 score_group = pygame.sprite.Group()
 
 player_count = 0
+
+frame_counter = 0
+enemies_spawn_formula = (FPS // 2, FPS * 3)
+frame_enemines_show = randint(*enemies_spawn_formula)
 
 
 while True:
@@ -279,16 +283,6 @@ while True:
             # Мышь используется только в меню (стартовом и паузы)
             if config.is_pause or not config.is_start or config.is_died:
                 coordinates_of_mouse = event.pos
-        elif event.type == pygame.USEREVENT and config.is_running:
-            barrier_src = enemies_list[randint(0, len(enemies_list) - 1)]
-            image_enemie = pygame.image.load(barrier_src).convert_alpha()
-            Enemie(WORKPLACE_X, WORKPLACE_Y - grass_y, image_enemie, enemies_group)
-
-            image_coin = pygame.image.load(coin_src).convert_alpha()
-            Coin(WORKPLACE_X,
-                 WORKPLACE_Y - grass_y - image_enemie.get_size()[1] - 100,
-                 image_coin,
-                 coin_group)
 
     # TODO Отвязать анимацию персонажа анимацию от FPS
     score_group.draw(screen)
@@ -321,6 +315,30 @@ while True:
     # Сцена забега #
     # ------------ #
     elif config.is_running:
+        # ---------------- #
+        # Spawn of enemies #
+        # ---------------- #
+        if frame_counter == frame_enemines_show:
+            # Spawn enemies
+            barrier_src = enemies_list[randint(0, len(enemies_list) - 1)]
+            image_enemie = pygame.image.load(barrier_src).convert_alpha()
+            Enemie(WORKPLACE_X, WORKPLACE_Y - grass_y, image_enemie, enemies_group)
+
+            # Spawn coins
+            image_coin = pygame.image.load(coin_src).convert_alpha()
+            Coin(WORKPLACE_X,
+                 WORKPLACE_Y - grass_y - image_enemie.get_size()[1] - 100,
+                 image_coin,
+                 coin_group)
+
+            frame_counter = 0
+            frame_enemines_show = randint(*enemies_spawn_formula)
+        else:
+            frame_counter += 1
+
+        # ------- #
+        # Jumping #
+        # ------- #
         if config.is_jump:
             if config.jump_count >= - config.jump_count_ideal:
                 # Движение в полете. От 10 до 1 - вверх, от -1 до -9 - вниз.
@@ -376,6 +394,6 @@ while True:
         player_count += 1
 
     screen.fill(BACKGROUND)
-    clock.tick(40)
+    clock.tick(FPS)
 
 
