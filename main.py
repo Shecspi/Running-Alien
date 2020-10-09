@@ -2,7 +2,7 @@
 Copyright 2020 Egor Vavilov (shecspi@gmail.com)
 Licensed under the Apache License, Version 2.0
 """
-
+import sqlite3
 from random import randint
 
 import pygame
@@ -198,10 +198,14 @@ pygame.time.set_timer(pygame.USEREVENT, 2000)
 screen = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 clock = pygame.time.Clock()
 
+db_connect = sqlite3.connect('runner.sqlite')
+sqlite = db_connect.cursor()
+
 pause_background = pygame.image.load("sprites/menu_background.jpg").convert_alpha()
 
-# Загружаем спрайты земли
+# Download sprites of grass
 grass_image = pygame.image.load(grass_src)
+grass_image_first = pygame.image.load(grass_first_src)
 grass_x, grass_y = grass_image.get_size()
 qty_of_grass = WORKPLACE_X // grass_x + 2
 logger.info(f'Quantity of grass sprites - {qty_of_grass}.')
@@ -209,91 +213,100 @@ logger.info(f'The sizes of grass sprite are {grass_x}x{grass_y}')
 
 grass_group = pygame.sprite.Group()
 
-# Рассчитываем, сколько необходимо спрайтов земли на экран и добавляем их
+# Calculation of quantity of grass sprites
 initial_point = WORKPLACE_LEFT_SIDE
+center_of_grass_y = WORKPLACE_Y - grass_y // 2
+
 for i in range(0, qty_of_grass):
     Grass(initial_point + grass_x // 2,
-          WINDOW_Y - grass_y // 2,
+          center_of_grass_y,
           grass_image,
           grass_group)
     initial_point += grass_x
 
-# Загружаем спрайты игрока
+# Download sprites of player
 player_group = Player(WORKPLACE_Y - grass_y)
 
-# Загружаем спрайты врагов
+# Download sprites of enemies
 enemies_list = []
 for i in enemies_src:
     enemies_list.append(f'sprites/enemies/{i}')
 enemies_group = pygame.sprite.Group()
 
-# Загружаем спрайты монеток
+# Download sprites of coins
 coin_group = pygame.sprite.Group()
 
-# Загружаем спрайты цифр
-number_list = []
-for i in numbers_src:
-    number_list.append(f'sprites/numbers/{i}')
-score_group = pygame.sprite.Group()
-
+# To select sprites of player
 player_count = 0
 
+# Counter of frames for the random spawn of enemies
 frame_counter = 0
+
+# The formula for the random spawn of enemies
 enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemines_show = randint(*enemies_spawn_formula)
 
+cycle = True
 
-while True:
+while cycle:
     # Координаты нажатой мыши
     coordinates_of_mouse = ()
 
-    # Обработка событий, в том числе нажатий кнопок
+    ##############################
+    # -------------------------- #
+    # ----- Event handling ----- #
+    # -------------------------- #
+    ##############################
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            exit()
-        # ------------------------ #
-        # Нажатие клавишы "Escape" #
-        # ------------------------ #
+            cycle = False
+
+        ##################
+        # Press "Escape" #
+        ##################
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            # Во время отображения стартового меню клавиша "Escape" не используется
-            if config.is_start:
-                # Ставит игру на паузу
-                if config.is_running and not config.is_died:
+            # Player can use the button "Escape" only on the screens "Running" and "Pause"
+            if config.is_start and not config.is_died:
+                # Pause
+                if not config.is_pause:
                     config.is_pause = True
                     config.is_running = False
                     logger.info('Paused...')
-                # Возобновляет игру
-                elif not config.is_running and not config.is_died:
+                # Resume
+                else:
                     config.is_pause = False
                     config.is_running = True
                     logger.info('Resumed')
-        # ------------------------ #
-        # Нажатие клавишы "Пробел" #
-        # ------------------------ #
+
+        #################
+        # Press "Space" #
+        #################
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            # Во время отображения стартового меню клавиша "Пробел" не используется
-            if config.is_start:
-                if config.is_running and not config.is_jump:
+            # Player can jump only on screen "Running", not "Start", "Pause" and "Died"
+            if config.is_start and not config.is_pause and not config.is_died:
+                # There is no double jump
+                if not config.is_jump:
                     config.is_jump = True
                     logger.info('Jump')
-        # ------------------- #
-        # Нажатие кнопок мыши #
-        # ------------------- #
+
+        ######################
+        # Press mouse button #
+        ######################
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            # Мышь используется только в меню (стартовом и паузы)
-            if config.is_pause or not config.is_start or config.is_died:
+            # Player can use mouse button only on the screens "Start", "Pause" and "Died"
+            if not config.is_start or config.is_pause or config.is_died:
                 coordinates_of_mouse = event.pos
 
-    # TODO Отвязать анимацию персонажа анимацию от FPS
-    score_group.draw(screen)
-    grass_group.draw(screen)
-    screen.blit(player_group.image, player_group.rect)
-    enemies_group.draw(screen)
-    coin_group.draw(screen)
+    ###########################################
+    # --------------------------------------- #
+    # ----- Calculation of game screens ----- #
+    # --------------------------------------- #
+    ###########################################
 
-    # --------------------- #
-    # Сцена стартового меню #
-    # --------------------- #
+    #######################
+    # Screen "Start menu" #
+    #######################
     if not config.is_start:
         result = start_menu(coordinates_of_mouse)
         if result == 'start':
@@ -301,9 +314,10 @@ while True:
             config.is_running = True
         elif result == 'exit':
             exit()
-    # ----------- #
-    # Сцена паузы #
-    # ----------- #
+
+    ##################
+    # Screen "Pause" #
+    ##################
     elif config.is_pause:
         result = pause_menu(coordinates_of_mouse)
         if result == 'resume':
@@ -311,23 +325,27 @@ while True:
             config.is_running = True
         elif result == 'exit':
             exit()
-    # ------------ #
-    # Сцена забега #
-    # ------------ #
+
+    ####################
+    # Screen "Running" #
+    ####################
     elif config.is_running:
         # ---------------- #
         # Spawn of enemies #
         # ---------------- #
         if frame_counter == frame_enemines_show:
             # Spawn enemies
-            barrier_src = enemies_list[randint(0, len(enemies_list) - 1)]
-            image_enemie = pygame.image.load(barrier_src).convert_alpha()
-            Enemie(WORKPLACE_X, WORKPLACE_Y - grass_y, image_enemie, enemies_group)
+            enemie_src = enemies_list[randint(0, len(enemies_list) - 1)]
+            image_enemie = pygame.image.load(enemie_src).convert_alpha()
+            Enemie(WORKPLACE_X,
+                   center_of_grass_y - grass_y // 2 - image_enemie.get_rect()[3] // 2,
+                   image_enemie,
+                   enemies_group)
 
             # Spawn coins
             image_coin = pygame.image.load(coin_src).convert_alpha()
             Coin(WORKPLACE_X,
-                 WORKPLACE_Y - grass_y - image_enemie.get_size()[1] - 100,
+                 center_of_grass_y - grass_y // 2 - image_enemie.get_rect()[3] // 2 - 150,
                  image_coin,
                  coin_group)
 
@@ -340,51 +358,67 @@ while True:
         # Jumping #
         # ------- #
         if config.is_jump:
+            # Jumping
             if config.jump_count >= - config.jump_count_ideal:
-                # Движение в полете. От 10 до 1 - вверх, от -1 до -9 - вниз.
                 player_group.update(f'sprites/{player_jump_src}')
                 config.jump_count -= 1
             else:
-                # Момент приземления
+                # Landing
                 config.is_jump = False
                 config.jump_count = config.jump_count_ideal
         else:
             player_group.update(f'sprites/{player_src[player_count]}')
 
-        grass_group.update(grass_image, grass_group, grass_x, qty_of_grass, speed_of_world)
+        grass_group.update(grass_image,
+                           grass_group,
+                           grass_x,
+                           qty_of_grass,
+                           speed_of_world,
+                           center_of_grass_y)
         enemies_group.update(speed_of_world)
         coin_group.update(speed_of_world)
 
-        # Проверяем столкновение персонажа с препятствием
-        hits = pygame.sprite.spritecollide(player_group, enemies_group, False)
-        if hits:
+        # Checking collision of character and enemies
+        hit_player_enemie = pygame.sprite.spritecollide(player_group, enemies_group, False)
+        hit_player_coin = pygame.sprite.spritecollide(player_group, coin_group, True)
+
+        if hit_player_enemie:
             config.is_running = False
             config.is_died = True
+            player_group.update(f'sprites/{player_hurt_src}', config.is_running)
             logger.info('Crash!!!')
 
-            # Заменяем спрайт персонажа на погибшего
-            player_group.update(f'sprites/{player_hurt_src}', config.is_running)
-
-        # Проверяем столкновение персонажа с монеткой
-        hits = pygame.sprite.spritecollide(player_group, coin_group, True)
-        if hits:
+        # Checking collision of character and coins
+        if hit_player_coin:
             config.score += 1
             logger.info(f'Found coin! Your current result is {config.score}')
-    # ---------------------- #
-    # Сцена меню 'Game Over' #
-    # ---------------------- #
+
+    ######################
+    # Screen 'Game Over' #
+    ######################
     elif config.is_died:
+        if not config.is_save:
+            sqlite.execute(f"""INSERT INTO scores (time, score) VALUES ('1', '{config.score}')""")
+            db_connect.commit()
+            config.is_save = True
+
         result = died_menu(coordinates_of_mouse)
         if result == 'restart':
             initial_position()
         elif result == 'exit':
-            exit()
+            cycle = False
 
-    # -------------- #
+    ##################
     # Update counter #
-    # -------------- #
+    ##################
     menu_text(20, 50, f'Score: {config.score}', 24, 'left')
     menu_text(WORKPLACE_X - 20, 50, f'The best result: 35', 24, 'right')
+
+    # TODO Отвязать анимацию персонажа анимацию от FPS
+    grass_group.draw(screen)
+    screen.blit(player_group.image, player_group.rect)
+    enemies_group.draw(screen)
+    coin_group.draw(screen)
 
     pygame.display.update()
 

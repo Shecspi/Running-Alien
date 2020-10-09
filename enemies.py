@@ -15,7 +15,7 @@ class Enemie(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
         self.add(group)
-        self.rect.bottomleft = (x, y)
+        self.rect.center = (x, y)
 
     def update(self, speed):
         if self.rect.x > WORKPLACE_LEFT_SIDE - self.image.get_size()[0]:

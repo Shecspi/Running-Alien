@@ -21,6 +21,7 @@ WHITE = (255, 255, 255)
 BACKGROUND = (204, 221, 250)
 
 grass_src = 'grassMid.png'
+grass_first_src = 'sprites/grass_first.png'
 
 player_src = ['p3_walk01.png', 'p3_walk02.png', 'p3_walk03.png', 'p3_walk04.png',
               'p3_walk05.png', 'p3_walk06.png', 'p3_walk07.png', 'p3_walk08.png',
