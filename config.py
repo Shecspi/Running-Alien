@@ -9,6 +9,7 @@ is_pause = False  # Поставлена ли игра на паузу
 is_died = False  # Погиб ли персонаж
 is_jump = False
 is_save = False
+is_record = False  # When the player set a new record
 
 score = 0
 jump_count = jump_count_ideal = 10

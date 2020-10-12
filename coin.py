@@ -4,9 +4,8 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pygame
-from loguru import logger
 
-from setting import WORKPLACE_LEFT_SIDE
+import setting
 
 
 class Coin(pygame.sprite.Sprite):
@@ -14,11 +13,11 @@ class Coin(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = self.image.get_rect()
-        self.add(group)
         self.rect.center = (x, y)
+        self.add(group)
 
-    def update(self, speed):
-        if self.rect.x > WORKPLACE_LEFT_SIDE - self.image.get_size()[0]:
-            self.rect.x -= speed
+    def update(self):
+        if self.rect.x > setting.WORKPLACE_LEFT_SIDE - self.rect.width:
+            self.rect.x -= setting.speed_of_world
         else:
             self.kill()

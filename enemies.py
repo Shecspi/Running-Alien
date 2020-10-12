@@ -4,7 +4,8 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pygame
-from loguru import logger
+
+import setting
 
 from setting import WORKPLACE_LEFT_SIDE
 
@@ -17,8 +18,8 @@ class Enemie(pygame.sprite.Sprite):
         self.add(group)
         self.rect.center = (x, y)
 
-    def update(self, speed):
+    def update(self):
         if self.rect.x > WORKPLACE_LEFT_SIDE - self.image.get_size()[0]:
-            self.rect.x -= speed
+            self.rect.x -= setting.speed_of_world
         else:
             self.kill()

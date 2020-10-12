@@ -10,10 +10,12 @@ from loguru import logger
 
 import config
 from coin import Coin
+from modules.database import Database
 from setting import *
 from grass import Grass
 from player import Player
 from enemies import Enemie
+
 
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
 
@@ -32,11 +34,27 @@ def start_menu(pos: tuple):
     title_bottom_y = title_rect.y + title_rect.height
 
     # Button "Start"
-    start_rect = menu_button('sprites/green_button.png', WORKPLACE_X // 2, title_bottom_y + 50, 'Start', screen)
+    start_rect = menu_button('sprites/green_button.png',
+                             WORKPLACE_X // 2,
+                             title_bottom_y + 50,
+                             'Start',
+                             screen)
     start_rect_y = start_rect.y + start_rect.height
 
+    # Button "Reset"
+    reset_rect = menu_button('sprites/red_button.png',
+                             WORKPLACE_X // 2,
+                             start_rect_y + 50,
+                             'Reset',
+                             screen)
+    reset_rect_y = reset_rect.y + reset_rect.height
+
     # Button "Exit"
-    exit_rect = menu_button('sprites/red_button.png', WORKPLACE_X // 2, start_rect_y + 50, 'Exit', screen)
+    exit_rect = menu_button('sprites/red_button.png',
+                            WORKPLACE_X // 2,
+                            reset_rect_y + 50,
+                            'Exit',
+                            screen)
     exit_rect_y = exit_rect.y + exit_rect.height
 
     # Copyright
@@ -46,7 +64,10 @@ def start_menu(pos: tuple):
         if handle_mouse_press(start_rect, pos):
             logger.info("The button 'Start' was pressed.")
             return 'start'
-        if handle_mouse_press(exit_rect, pos):
+        elif handle_mouse_press(reset_rect, pos):
+            logger.info("The button 'Reset' was pressed.")
+            return 'reset'
+        elif handle_mouse_press(exit_rect, pos):
             logger.info("The button 'Exit' was pressed.")
             return 'exit'
 
@@ -186,6 +207,7 @@ def initial_position():
     config.score = 0
     config.is_died = False
     config.is_running = True
+    config.is_record = False
 
     config.is_jump = False
     config.jump_count = config.jump_count_ideal
@@ -198,8 +220,9 @@ pygame.time.set_timer(pygame.USEREVENT, 2000)
 screen = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 clock = pygame.time.Clock()
 
-db_connect = sqlite3.connect('runner.sqlite')
-sqlite = db_connect.cursor()
+db = Database()
+# db_connect = sqlite3.connect('runner.sqlite')
+# sqlite = db_connect.cursor()
 
 pause_background = pygame.image.load("sprites/menu_background.jpg").convert_alpha()
 
@@ -244,7 +267,12 @@ frame_counter = 0
 
 # The formula for the random spawn of enemies
 enemies_spawn_formula = (FPS // 2, FPS * 3)
-frame_enemines_show = randint(*enemies_spawn_formula)
+frame_enemies_show = randint(*enemies_spawn_formula)
+
+# The best result
+best_score = db.get_best_result()
+if not best_score:
+    best_score = 0
 
 cycle = True
 
@@ -312,6 +340,10 @@ while cycle:
         if result == 'start':
             config.is_start = True
             config.is_running = True
+        elif result == 'reset':
+            db.reset()
+            # TODO Make a beautiful animation to inform player about new record
+            logger.info('Reset was made')
         elif result == 'exit':
             exit()
 
@@ -333,24 +365,24 @@ while cycle:
         # ---------------- #
         # Spawn of enemies #
         # ---------------- #
-        if frame_counter == frame_enemines_show:
+        if frame_counter == frame_enemies_show:
             # Spawn enemies
-            enemie_src = enemies_list[randint(0, len(enemies_list) - 1)]
-            image_enemie = pygame.image.load(enemie_src).convert_alpha()
-            Enemie(WORKPLACE_X,
-                   center_of_grass_y - grass_y // 2 - image_enemie.get_rect()[3] // 2,
-                   image_enemie,
+            enemy_src = enemies_list[randint(0, len(enemies_list) - 1)]
+            image_enemy = pygame.image.load(enemy_src).convert_alpha()
+            Enemie(WORKPLACE_X + grass_x // 2,
+                   center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2,
+                   image_enemy,
                    enemies_group)
 
             # Spawn coins
             image_coin = pygame.image.load(coin_src).convert_alpha()
-            Coin(WORKPLACE_X,
-                 center_of_grass_y - grass_y // 2 - image_enemie.get_rect()[3] // 2 - 150,
+            Coin(WORKPLACE_X + grass_x // 2,
+                 center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
                  image_coin,
                  coin_group)
 
             frame_counter = 0
-            frame_enemines_show = randint(*enemies_spawn_formula)
+            frame_enemies_show = randint(*enemies_spawn_formula)
         else:
             frame_counter += 1
 
@@ -369,20 +401,20 @@ while cycle:
         else:
             player_group.update(f'sprites/{player_src[player_count]}')
 
+        # Update sprites
         grass_group.update(grass_image,
                            grass_group,
                            grass_x,
                            qty_of_grass,
-                           speed_of_world,
                            center_of_grass_y)
-        enemies_group.update(speed_of_world)
-        coin_group.update(speed_of_world)
+        enemies_group.update()
+        coin_group.update()
 
         # Checking collision of character and enemies
-        hit_player_enemie = pygame.sprite.spritecollide(player_group, enemies_group, False)
+        hit_player_enemy = pygame.sprite.spritecollide(player_group, enemies_group, False)
         hit_player_coin = pygame.sprite.spritecollide(player_group, coin_group, True)
 
-        if hit_player_enemie:
+        if hit_player_enemy:
             config.is_running = False
             config.is_died = True
             player_group.update(f'sprites/{player_hurt_src}', config.is_running)
@@ -398,8 +430,7 @@ while cycle:
     ######################
     elif config.is_died:
         if not config.is_save:
-            sqlite.execute(f"""INSERT INTO scores (time, score) VALUES ('1', '{config.score}')""")
-            db_connect.commit()
+            db.insert_new_score(config.score)
             config.is_save = True
 
         result = died_menu(coordinates_of_mouse)
@@ -411,8 +442,11 @@ while cycle:
     ##################
     # Update counter #
     ##################
+    if config.score > best_score and not config.is_record:
+        logger.info("It's a new record!!!")
+        config.is_record = True
     menu_text(20, 50, f'Score: {config.score}', 24, 'left')
-    menu_text(WORKPLACE_X - 20, 50, f'The best result: 35', 24, 'right')
+    menu_text(WORKPLACE_X - 20, 50, f'The best result: {best_score}', 24, 'right')
 
     # TODO Отвязать анимацию персонажа анимацию от FPS
     grass_group.draw(screen)
@@ -429,5 +463,3 @@ while cycle:
 
     screen.fill(BACKGROUND)
     clock.tick(FPS)
-
-
