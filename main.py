@@ -119,7 +119,7 @@ def died_menu(pos):
     screen.blit(pause_background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
     # Title "Game over"
-    game_over_rect = menu_text(WORKPLACE_X // 2, 150, 'Pause', 100)
+    game_over_rect = menu_text(WORKPLACE_X // 2, 150, 'Game over', 100)
     game_over_y = game_over_rect.y + game_over_rect.height
 
     # Button "Restart"
@@ -270,6 +270,7 @@ frame_counter = 0
 enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
+# The class to draw current and best results on the screen
 score_showing = ScoreShowing(screen)
 
 # The best result
@@ -328,6 +329,12 @@ while cycle:
             # Player can use mouse button only on the screens "Start", "Pause" and "Died"
             if not config.is_start or config.is_pause or config.is_died:
                 coordinates_of_mouse = event.pos
+
+    # TODO Отвязать анимацию персонажа анимацию от FPS
+    grass_group.draw(screen)
+    screen.blit(player_group.image, player_group.rect)
+    enemies_group.draw(screen)
+    coin_group.draw(screen)
 
     ###########################################
     # --------------------------------------- #
@@ -450,12 +457,6 @@ while cycle:
         config.is_record = True
     score_showing.current_score(config.score)
     score_showing.best_score(best_score)
-
-    # TODO Отвязать анимацию персонажа анимацию от FPS
-    grass_group.draw(screen)
-    screen.blit(player_group.image, player_group.rect)
-    enemies_group.draw(screen)
-    coin_group.draw(screen)
 
     pygame.display.update()
 
