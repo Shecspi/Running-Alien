@@ -11,6 +11,7 @@ from loguru import logger
 import config
 from coin import Coin
 from modules.database import Database
+from modules.scoreshowing import ScoreShowing
 from setting import *
 from grass import Grass
 from player import Player
@@ -269,6 +270,8 @@ frame_counter = 0
 enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
+score_showing = ScoreShowing(screen)
+
 # The best result
 best_score = db.get_best_result()
 if not best_score:
@@ -445,8 +448,8 @@ while cycle:
     if config.score > best_score and not config.is_record:
         logger.info("It's a new record!!!")
         config.is_record = True
-    menu_text(20, 50, f'Score: {config.score}', 24, 'left')
-    menu_text(WORKPLACE_X - 20, 50, f'The best result: {best_score}', 24, 'right')
+    score_showing.current_score(config.score)
+    score_showing.best_score(best_score)
 
     # TODO Отвязать анимацию персонажа анимацию от FPS
     grass_group.draw(screen)
