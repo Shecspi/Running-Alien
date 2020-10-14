@@ -1,5 +1,5 @@
 # Project exclude paths
 /venv/
-/.gitignore
-/TODO
-/resources/database.sqlite
+!/.gitignore
+!/TODO
+!/resources/database.sqlite
