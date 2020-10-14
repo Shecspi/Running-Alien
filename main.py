@@ -28,7 +28,7 @@ from enemies import Enemy
 def initial_position():
     enemies_group.empty()
     coin_group.empty()
-    score.current_score = 0
+    score.set_current_score(0)
     config.is_died = False
     config.is_running = True
     config.is_record = False
@@ -269,20 +269,20 @@ while cycle:
 
         # Checking collision of character and coins
         if hit_player_coin:
-            score.current_score += 1
-            logger.info(f'Found coin! Your current result is {score.current_score}')
+            score.set_current_score(score.get_current_score() + 1)
+            logger.info(f'Found coin! Your current result is {score.get_current_score()}')
 
     ######################
     # Screen 'Game Over' #
     ######################
     elif config.is_died:
         if not config.is_save:
-            db.insert_new_score(score.current_score)
+            db.insert_new_score(score.get_current_score())
             config.is_save = True
 
         result = screen_menu.display_death_menu(coordinates_of_mouse)
         if result == 'restart':
-            score.best_score = score.current_score
+            score.set_best_score(score.get_current_score())
             initial_position()
         elif result == 'exit':
             cycle = False
@@ -290,7 +290,7 @@ while cycle:
     ##################
     # Update counter #
     ##################
-    if score.current_score > score.best_score and not config.is_record:
+    if score.get_current_score() > score.get_best_score() and not config.is_record:
         logger.info("It's a new record!!!")
         config.is_record = True
     score.display_current_score()

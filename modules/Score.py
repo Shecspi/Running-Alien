@@ -49,6 +49,36 @@ class Score:
 
         return text_rect
 
+    def set_current_score(self, score: int) -> None:
+        """ Set the current score value.
+
+        :param score: The current score
+        :return: None
+        """
+        self.current_score = score
+
+    def set_best_score(self, score: int) -> None:
+        """ Set the best score value.
+
+        :param score: The best score
+        :return: None
+        """
+        self.best_score = score
+
+    def get_current_score(self) -> int:
+        """ Returns the current score value.
+
+        :return: int
+        """
+        return self.current_score
+
+    def get_best_score(self) -> int:
+        """ Returns the best score value.
+
+        :return: int
+        """
+        return self.best_score
+
     def display_current_score(self,):
         """  Draws the current result in the left top corner of screen.
 
