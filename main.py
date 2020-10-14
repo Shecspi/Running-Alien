@@ -28,7 +28,7 @@ from enemies import Enemy
 def initial_position():
     enemies_group.empty()
     coin_group.empty()
-    config.score = 0
+    score.current_score = 0
     config.is_died = False
     config.is_running = True
     config.is_record = False
@@ -46,8 +46,6 @@ clock = pygame.time.Clock()
 
 db = Database()
 screen_menu = ScreenMenu(screen)
-
-pause_background = pygame.image.load("sprites/menu_background.jpg").convert_alpha()
 
 # Download sprites of grass
 grass_image = pygame.image.load(grass_src)
@@ -101,12 +99,10 @@ enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
 # The class to draw current and best results on the screen
-score_showing = Score(screen)
+score = Score(screen)
 
 # The best result
-best_score = db.get_best_result()
-if not best_score:
-    best_score = 0
+score.best_score = db.get_best_result()
 
 cycle = True
 
@@ -273,19 +269,20 @@ while cycle:
 
         # Checking collision of character and coins
         if hit_player_coin:
-            config.score += 1
-            logger.info(f'Found coin! Your current result is {config.score}')
+            score.current_score += 1
+            logger.info(f'Found coin! Your current result is {score.current_score}')
 
     ######################
     # Screen 'Game Over' #
     ######################
     elif config.is_died:
         if not config.is_save:
-            db.insert_new_score(config.score)
+            db.insert_new_score(score.current_score)
             config.is_save = True
 
         result = screen_menu.display_death_menu(coordinates_of_mouse)
         if result == 'restart':
+            score.best_score = score.current_score
             initial_position()
         elif result == 'exit':
             cycle = False
@@ -293,11 +290,11 @@ while cycle:
     ##################
     # Update counter #
     ##################
-    if config.score > best_score and not config.is_record:
+    if score.current_score > score.best_score and not config.is_record:
         logger.info("It's a new record!!!")
         config.is_record = True
-    score_showing.display_current_score(config.score)
-    score_showing.display_best_score(best_score)
+    score.display_current_score()
+    score.display_best_score()
 
     pygame.display.update()
 

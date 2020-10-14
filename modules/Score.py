@@ -16,14 +16,16 @@ import pygame
 
 class Score:
     def __init__(self, screen):
-        self.x = 30
-        self.y = 30
-        self.font_size = 24
-        self.font_color = (0, 0, 0)
-        self.font_src = 'sprites/fonts/kenvector_future_thin.ttf'
-        self.current_result_height = 0
-        self.current_result_width = 0
-        self.screen = screen
+        self.current_score = 0
+        self.best_score = 0
+
+        self.__x = 30
+        self.__y = 30
+        self.__font_size = 24
+        self.__font_color = (0, 0, 0)
+        self.__font_src = 'sprites/fonts/kenvector_future_thin.ttf'
+        self.__current_result_height = 0
+        self.__screen = screen
 
     def __draw_text(self,
                     x: int,
@@ -39,30 +41,28 @@ class Score:
         :param size: Size of font
         :return: pygame.Rect of this text
         """
-        font = pygame.font.Font(self.font_src, size)
-        text = font.render(message, 1, self.font_color)
+        font = pygame.font.Font(self.__font_src, size)
+        text = font.render(message, 1, self.__font_color)
         text_rect = text.get_rect(topleft=(x, y))
 
-        self.screen.blit(text, text_rect)
+        self.__screen.blit(text, text_rect)
 
         return text_rect
 
-    def display_current_score(self, score):
+    def display_current_score(self,):
         """  Draws the current result in the left top corner of screen.
 
-        :param score: The current result
         :return: None
         """
-        text = self.__draw_text(self.x, self.y, f'Score: {score}', self.font_size)
-        self.current_result_width = text.height
+        text = self.__draw_text(self.__x, self.__y, f'Score: {self.current_score}', self.__font_size)
+        self.__current_result_height = text.height
 
-    def display_best_score(self, score):
+    def display_best_score(self):
         """ Draws the best result in the left top corner of screen.
 
-        :param score: The best result
         :return: None
         """
-        self.__draw_text(self.x,
-                         self.y + self.current_result_width,
-                         f'The best result: {score}',
-                         self.font_size)
+        self.__draw_text(self.__x,
+                         self.__y + self.__current_result_height,
+                         f'The best result: {self.best_score}',
+                         self.__font_size)

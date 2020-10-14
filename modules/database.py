@@ -16,7 +16,10 @@ class Database:
         query = self.cursor.execute("""SELECT MAX(score) FROM score LIMIT 1""")
         result = query.fetchone()[0]
 
-        return result
+        if not result:
+            return 0
+        else:
+            return result
 
     def reset(self):
         query = self.cursor.execute("""
