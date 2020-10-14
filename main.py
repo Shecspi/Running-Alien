@@ -15,7 +15,7 @@ from cloud import Cloud
 from coin import Coin
 from modules.ScreenMenu import ScreenMenu
 from modules.database import Database
-from modules.scoreshowing import ScoreShowing
+from modules.Score import Score
 from setting import *
 from grass import Grass
 from player import Player
@@ -101,7 +101,7 @@ enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
 # The class to draw current and best results on the screen
-score_showing = ScoreShowing(screen)
+score_showing = Score(screen)
 
 # The best result
 best_score = db.get_best_result()
@@ -296,8 +296,8 @@ while cycle:
     if config.score > best_score and not config.is_record:
         logger.info("It's a new record!!!")
         config.is_record = True
-    score_showing.current_score(config.score)
-    score_showing.best_score(best_score)
+    score_showing.display_current_score(config.score)
+    score_showing.display_best_score(best_score)
 
     pygame.display.update()
 
