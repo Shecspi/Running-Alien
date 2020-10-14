@@ -18,7 +18,7 @@ FPS = 40
 speed_of_world = 10
 
 WHITE = (255, 255, 255)
-BACKGROUND = (204, 221, 250)
+BACKGROUND = (135, 206, 235)
 
 grass_src = 'grassMid.png'
 grass_first_src = 'sprites/grass_first.png'
@@ -31,6 +31,8 @@ player_down_src = 'sprites/player/down.png'
 player_hurt_src = 'p3_hurt.png'
 
 enemies_src = ['pokerMad.png', 'cactus.png', 'snailWalk1.png']
+
+resources_dir_cloud = 'resources/sprites/clouds/'
 
 numbers_src = ['0.png', '1.png', '2.png', '3.png', '4.png',
                '5.png', '6.png', '7.png', '8.png', '9.png']

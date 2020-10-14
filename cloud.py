@@ -1,16 +1,10 @@
-"""
-Copyright 2020 Egor Vavilov (shecspi@gmail.com)
-Licensed under the Apache License, Version 2.0
-"""
-
-import pygame
+import pygame as pygame
 
 import setting
-
 from setting import WORKPLACE_LEFT_SIDE
 
 
-class Enemy(pygame.sprite.Sprite):
+class Cloud(pygame.sprite.Sprite):
     def __init__(self, x, y, image, group):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
@@ -20,6 +14,6 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         if self.rect.x > WORKPLACE_LEFT_SIDE - self.image.get_size()[0]:
-            self.rect.x -= setting.speed_of_world
+            self.rect.x -= setting.speed_of_world // 2
         else:
             self.kill()
