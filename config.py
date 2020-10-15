@@ -1,7 +1,7 @@
-"""
-Copyright 2020 Egor Vavilov (shecspi@gmail.com)
-Licensed under the Apache License, Version 2.0
-"""
+#  Running Alien v.0.2
+#
+#  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
+#  Licensed under the Apache License, Version 2.0
 
 is_running = True  # Бежит ли персонаж
 is_start = False  # Запущен ли игровой процесс
