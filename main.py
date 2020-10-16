@@ -34,13 +34,14 @@ def initial_position():
 
     config.is_jump = False
     config.jump_count = config.jump_count_ideal
-    player_group.rect.bottomleft = (150, WORKPLACE_Y - grass_y)
+    player_group.rect.bottomleft = (150, screen_height - grass_y)
 
 
 pygame.init()
 
 pygame.time.set_timer(pygame.USEREVENT, 2000)
 screen = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
+screen_width, screen_height = screen.get_rect()[2:4]
 clock = pygame.time.Clock()
 
 db = Database()
@@ -49,13 +50,13 @@ screen_menu = ScreenMenu(screen)
 # Download sprites of grass
 grass_image = pygame.image.load(resources_dir_grass + grass_base_src)
 grass_x, grass_y = grass_image.get_size()
-qty_of_grass = WORKPLACE_X // grass_x + 2
+qty_of_grass = screen_width // grass_x + 2
 
 grass_group = pygame.sprite.Group()
 
 # Calculation of quantity of grass sprites
-initial_point = WORKPLACE_LEFT_SIDE
-center_of_grass_y = WORKPLACE_Y - grass_y // 2
+initial_point = 0
+center_of_grass_y = screen_height - grass_y // 2
 
 for i in range(0, qty_of_grass):
     Grass(initial_point + grass_x // 2,
@@ -80,7 +81,7 @@ player_stand_image = pygame.image.load(player_stand_src).convert_alpha()
 # Use a random picture for hurt player
 player_hurt_list = os.listdir(resources_dir_player_hurt)
 
-player_group = Player(WORKPLACE_Y - grass_y, player_stand_image)
+player_group = Player(screen_height - grass_y, player_stand_image)
 
 # Download sprites of enemies
 enemies_list = os.listdir(resources_dir_enemies)
@@ -217,7 +218,7 @@ while cycle:
             # Spawn clouds
             cloud_src = resources_dir_clouds + clouds_list[randint(0, len(clouds_list) - 1)]
             cloud_image = pygame.image.load(cloud_src).convert_alpha()
-            Cloud(WORKPLACE_X + grass_x // 2,
+            Cloud(screen_width + grass_x // 2,
                   randint(100, 300),
                   cloud_image,
                   clouds_group)
@@ -226,7 +227,7 @@ while cycle:
             # Spawn enemies
             enemy_src = resources_dir_enemies + enemies_list[randint(0, len(enemies_list) - 1)]
             image_enemy = pygame.image.load(enemy_src).convert_alpha()
-            Enemy(WORKPLACE_X + grass_x // 2,
+            Enemy(screen_width + grass_x // 2,
                   center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2,
                   image_enemy,
                   enemies_group)
@@ -234,7 +235,7 @@ while cycle:
             # Spawn coins
             coin_src = resources_dir_coins + coins_list[randint(0, len(coins_list) - 1)]
             image_coin = pygame.image.load(coin_src).convert_alpha()
-            Coin(WORKPLACE_X + grass_x // 2,
+            Coin(screen_width + grass_x // 2,
                  center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
                  image_coin,
                  coin_group)

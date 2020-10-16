@@ -3,18 +3,13 @@
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
 
-# Размеры экрана
+# Size of screen
 WINDOW_Y = 600
 WINDOW_X = 1000
 
-# Размеры игровой зоны
-WORKPLACE_Y = 600
-WORKPLACE_X = 1000
-WORKPLACE_LEFT_SIDE = (WINDOW_X - WORKPLACE_X) // 2
-WORKPLACE_RIGHT_SIDE = WINDOW_X - WORKPLACE_LEFT_SIDE
-
 FPS = 40
 
+# Speed of the world moving
 speed_of_world = 10
 
 WHITE = (255, 255, 255)
@@ -22,6 +17,7 @@ BACKGROUND = (135, 206, 235)
 
 grass_base_src = 'grass_base.png'
 
+# Directories with resources
 resources_dir_grass = 'resources/sprites/grass/'
 resources_dir_clouds = 'resources/sprites/clouds/'
 resources_dir_enemies = 'resources/sprites/enemies/'
