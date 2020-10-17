@@ -15,7 +15,7 @@ import pygame
 
 
 class Score:
-    def __init__(self, screen):
+    def __init__(self, screen, font_source):
         self.current_score = 0
         self.best_score = 0
 
@@ -23,7 +23,7 @@ class Score:
         self.__y = 30
         self.__font_size = 24
         self.__font_color = (0, 0, 0)
-        self.__font_src = 'sprites/fonts/kenvector_future_thin.ttf'
+        self.__font_src = font_source
         self.__current_result_height = 0
         self.__screen = screen
 

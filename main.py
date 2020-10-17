@@ -45,7 +45,7 @@ screen_width, screen_height = screen.get_rect()[2:4]
 clock = pygame.time.Clock()
 
 db = Database()
-screen_menu = ScreenMenu(screen)
+screen_menu = ScreenMenu(screen, font_source, buttons_source)
 
 # Download sprites of grass
 grass_image = pygame.image.load(resources_dir_grass + grass_base_src)
@@ -110,7 +110,7 @@ enemies_spawn_formula = (FPS // 2, FPS * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
 # The class to draw current and best results on the screen
-score = Score(screen)
+score = Score(screen, font_source)
 
 # The best result
 score.best_score = db.get_best_result()
@@ -118,8 +118,12 @@ score.best_score = db.get_best_result()
 cycle = True
 
 while cycle:
-    # Координаты нажатой мыши
+    # Coordinates of clicked mouse (left click)
     coordinates_of_mouse = ()
+    is_clicked = False
+
+    # Coordinates of current mouse position
+    mouse_current_position = pygame.mouse.get_pos()
 
     ##############################
     # -------------------------- #
@@ -167,6 +171,7 @@ while cycle:
             # Player can use mouse button only on the screens "Start", "Pause" and "Died"
             if not config.is_start or config.is_pause or config.is_died:
                 coordinates_of_mouse = event.pos
+                is_clicked = True
 
     # TODO Отвязать анимацию персонажа анимацию от FPS
     clouds_group.draw(screen)
@@ -185,7 +190,7 @@ while cycle:
     # Screen "Start menu" #
     #######################
     if not config.is_start:
-        result = screen_menu.display_start_menu(coordinates_of_mouse)
+        result = screen_menu.display_start_menu(mouse_current_position, is_clicked)
         if result == 'start':
             config.is_start = True
             config.is_running = True
@@ -200,7 +205,7 @@ while cycle:
     # Screen "Pause" #
     ##################
     elif config.is_pause:
-        result = screen_menu.display_pause_menu(coordinates_of_mouse)
+        result = screen_menu.display_pause_menu(mouse_current_position, is_clicked)
         if result == 'resume':
             config.is_pause = False
             config.is_running = True
@@ -302,7 +307,7 @@ while cycle:
             db.insert_new_score(score.get_current_score())
             config.is_save = True
 
-        result = screen_menu.display_death_menu(coordinates_of_mouse)
+        result = screen_menu.display_death_menu(mouse_current_position, is_clicked)
         if result == 'restart':
             score.set_best_score(score.get_current_score())
             initial_position()
