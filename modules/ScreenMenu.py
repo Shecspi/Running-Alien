@@ -1,4 +1,4 @@
-#  Running Alien v. 0.1
+#  Running Alien v.0.2
 #
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
@@ -18,38 +18,54 @@ from loguru import logger
 
 
 class ScreenMenu:
-    def __init__(self, screen):
+    def __init__(self, screen, font_source, button_source):
         self.screen = screen
         self.screen_width, self.screen_height = self.screen.get_size()
 
-        self.font_src = 'sprites/fonts/kenvector_future_thin.ttf'
-        self.font_size_regular = 24
-        self.font_size_copyright = 16
-        self.font_size_title = 100
+        self.font_src = font_source
+        self.font_size_regular = 30
+        self.font_size_copyright = 20
+        self.font_size_title = 70
         self.font_color = (0, 0, 0)
-        self.background = pygame.image.load("sprites/menu_background.jpg").convert_alpha()
+        self.__red_button = button_source['red']
+        self.__red_shadow_button = button_source['red_shadow']
+        self.__green_button = button_source['green']
+        self.__green_shadow_button = button_source['green_shadow']
+        self.__yellow_button = button_source['yellow']
+        self.__yellow_shadow_button = button_source['yellow_shadow']
+        self.background = pygame.image.load("resources/background/menu.jpg").convert_alpha()
 
     def __draw_button(self,
                       x: int,
                       y: int,
-                      image_src: str,
-                      message: str
+                      image_regular_src: str,
+                      image_shadow_src: str,
+                      message: str,
+                      mouse_position: tuple
                       ) -> pygame.Rect:
-        """
-        Draws a button on the screen.
+        """ Draws a button on the screen.
+
         :param x: X-coordinate for center of button
         :param y: Y-coordinate for center of button
-        :param image_src: Source of image for button
+        :param image_regular_src: Source of regular image for button (in focus condition)
+        :param image_shadow_src: Source of image for button with shadow (usual condition)
         :param message: Text to show on the button
+        :param mouse_position The current mouse position
         :return: The button size
         """
-        image = pygame.image.load(image_src).convert_alpha()
-        image_rect = image.get_rect(center=(x, y))
+        image_regular = pygame.image.load(image_regular_src).convert_alpha()
+        image_regular_rect = image_regular.get_rect(center=(x, y))
+        image_shadow = pygame.image.load(image_shadow_src).convert_alpha()
+        image_shadow_rect = image_shadow.get_rect(center=(x, y))
 
-        self.screen.blit(image, image_rect)
+        if self.__checking_mouse_position(image_regular_rect, mouse_position):
+            self.screen.blit(image_regular, image_regular_rect)
+        else:
+            self.screen.blit(image_shadow, image_shadow_rect)
+
         self.__draw_text(x, y, message, self.font_size_regular)
 
-        return image_rect
+        return image_shadow_rect
 
     def __draw_text(self,
                     x: int,
@@ -57,13 +73,13 @@ class ScreenMenu:
                     message: str,
                     size: int
                     ) -> pygame.Rect:
-        """
-        Displays text on the screen.
+        """ Displays text on the screen.
+
         :param x: X-coordinate for center of text
         :param y: Y-coordinate for center of text
         :param message: Text,
         :param size: Size of font
-        :return: pygame.Rect of this text
+        :return: The text size
         """
         font = pygame.font.Font(self.font_src, size)
         text = font.render(message, 1, self.font_color)
@@ -76,15 +92,15 @@ class ScreenMenu:
     def __draw_copyright(self,
                          x: int,
                          y: int):
-        """
-        Displays the copyright for some menu.
+        """ Displays the copyright for some menu.
+
         :param x:  Coordinate X for center of text
         :param y: Coordinate Y for center of text
         :return: None
         """
         copyright_rect = self.__draw_text(x,
                                           y,
-                                          'Copyright 2020 Egor Vavilov (shecspi@gmail.com)',
+                                          'Copyright © 2020 Egor Vavilov (shecspi@gmail.com)',
                                           self.font_size_copyright)
         self.__draw_text(self.screen_width // 2,
                          copyright_rect.y + copyright_rect.height + 20,
@@ -92,14 +108,14 @@ class ScreenMenu:
                          self.font_size_copyright)
 
     @staticmethod
-    def __handle_mouse_press(element_rect: pygame.Rect,
-                             mouse_position: tuple
-                             ) -> bool:
-        """
-        Check of click coordinates 'mouse_position' are on coordinates 'element_rect',
+    def __checking_mouse_position(element_rect: pygame.Rect,
+                                  mouse_position: tuple
+                                  ) -> bool:
+        """ Check of mouse position 'mouse_position' are on coordinates 'element_rect',
+
         If yes, return 'True', else 'False'.
         :param element_rect: Coordinates of interface element
-        :param mouse_position: Coordinates of mouse click
+        :param mouse_position: Coordinates of mouse
         :return: bool
         """
         x0, y0, width, height = element_rect
@@ -111,54 +127,66 @@ class ScreenMenu:
         else:
             return False
 
-    def display_start_menu(self, position_of_click) -> str:
-        """
-        Displays the start menu of the game (before the gaming).
+    def display_start_menu(self,
+                           mouse_position: tuple,
+                           is_clicked: bool) -> str:
+        """ Displays the start menu of the game (before the gaming).
+
         Displays title, two buttons 'Start' and 'Exit', the copyright information.
-        :param position_of_click: Coordinates of mouse after click.
+        :param mouse_position: The current mouse position
+        :param is_clicked: 'True' if it was a click, else 'False'
         :return: Keyword of pressed button - 'start' of 'exit'
         """
         self.screen.blit(self.background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
-        # Title "Are you ready?"
+        # Title
         title_rect = self.__draw_text(self.screen_width // 2,
                                       150,
-                                      'Are you ready?',
+                                      'Running Alien ver. 0.2',
                                       self.font_size_title)
         # Button "Start"
         start_rect = self.__draw_button(self.screen_width // 2,
                                         title_rect.y + title_rect.height + 50,
-                                        'sprites/green_button.png',
-                                        'Start')
+                                        self.__green_button,
+                                        self.__green_shadow_button,
+                                        'Start',
+                                        mouse_position)
         # Button "Reset"
         reset_rect = self.__draw_button(self.screen_width // 2,
                                         start_rect.y + start_rect.height + 50,
-                                        'sprites/red_button.png',
-                                        'Reset')
-        # Button "Exit"
+                                        self.__red_button,
+                                        self.__red_shadow_button,
+                                        'Reset',
+                                        mouse_position)
+        # # Button "Exit"
         exit_rect = self.__draw_button(self.screen_width // 2,
                                        reset_rect.y + reset_rect.height + 50,
-                                       'sprites/red_button.png',
-                                       'Exit')
-        # Copyright
+                                       self.__red_button,
+                                       self.__red_shadow_button,
+                                       'Exit',
+                                       mouse_position)
+        # # Copyright
         self.__draw_copyright(self.screen_width // 2, exit_rect.y + exit_rect.height + 50)
 
-        if position_of_click:
-            if self.__handle_mouse_press(start_rect, position_of_click):
+        if is_clicked:
+            if self.__checking_mouse_position(start_rect, mouse_position):
                 logger.info("The button 'Start' was pressed.")
                 return 'start'
-            elif self.__handle_mouse_press(reset_rect, position_of_click):
+            elif self.__checking_mouse_position(reset_rect, mouse_position):
                 logger.info("The button 'Reset' was pressed.")
                 return 'reset'
-            elif self.__handle_mouse_press(exit_rect, position_of_click):
+            elif self.__checking_mouse_position(exit_rect, mouse_position):
                 logger.info("The button 'Exit' was pressed.")
                 return 'exit'
 
-    def display_pause_menu(self, position_of_click):
+    def display_pause_menu(self,
+                           mouse_position,
+                           is_clicked):
         """
         Displays the pause menu of the game.
         Displays title, two buttons 'Start' and 'Exit', the copyright information.
-        :param position_of_click: Coordinates of mouse after click.
+        :param mouse_position: The current mouse position
+        :param is_clicked: 'True' if it was a click, else 'False'
         :return: Keyword of pressed button - 'resume' of 'exit'
         """
         # Отображает фоновое полупрозрачное изображение поверх сцены с игрой
@@ -172,30 +200,37 @@ class ScreenMenu:
         # Button "Resume"
         resume_rect = self.__draw_button(self.screen_width // 2,
                                          pause_rect.y + pause_rect.height + 50,
-                                         'sprites/green_button.png',
-                                         'Resume')
+                                         self.__green_button,
+                                         self.__green_shadow_button,
+                                         'Resume',
+                                         mouse_position)
         # Кнопка "Exit"
         exit_rect = self.__draw_button(self.screen_width // 2,
                                        resume_rect.y + resume_rect.height + 50,
-                                       'sprites/red_button.png',
-                                       'Exit')
+                                       self.__red_button,
+                                       self.__red_shadow_button,
+                                       'Exit',
+                                       mouse_position)
         # Copyright
         self.__draw_copyright(self.screen_width // 2,
                               exit_rect.y + exit_rect.height + 50)
 
-        if position_of_click:
-            if self.__handle_mouse_press(resume_rect, position_of_click):
+        if is_clicked:
+            if self.__checking_mouse_position(resume_rect, mouse_position):
                 logger.info("The button 'Resume' was pressed.")
                 return 'resume'
-            if self.__handle_mouse_press(exit_rect, position_of_click):
+            if self.__checking_mouse_position(exit_rect, mouse_position):
                 logger.info("The button 'Exit' was pressed.")
                 return 'exit'
 
-    def display_death_menu(self, position_of_click):
+    def display_death_menu(self,
+                           mouse_position: tuple,
+                           is_clicked: bool):
         """
         Displays the menu of the game when player was died.
         Displays title, two buttons 'Restart' and 'Exit', the copyright information.
-        :param position_of_click: Coordinates of mouse after click.
+        :param mouse_position: The current mouse position
+        :param is_clicked: 'True' if it was a click, else 'False'
         :return: Keyword of pressed button - 'restart' of 'exit'
         """
         self.screen.blit(self.background, (0, 0), None, pygame.BLEND_RGBA_SUB)
@@ -208,21 +243,25 @@ class ScreenMenu:
         # Button "Restart"
         restart_rect = self.__draw_button(self.screen_width // 2,
                                           title_rect.y + title_rect.height + 50,
-                                          'sprites/green_button.png',
-                                          'Restart')
+                                          self.__green_button,
+                                          self.__green_shadow_button,
+                                          'Restart',
+                                          mouse_position)
         # Button "Exit"
         exit_rect = self.__draw_button(self.screen_width // 2,
                                        restart_rect.y + restart_rect.height + 50,
-                                       'sprites/red_button.png',
-                                       'Exit')
+                                       self.__red_button,
+                                       self.__red_shadow_button,
+                                       'Exit',
+                                       mouse_position)
         # Copyright
         self.__draw_copyright(self.screen_width // 2,
                               exit_rect.y + exit_rect.height + 50)
 
-        if position_of_click:
-            if self.__handle_mouse_press(restart_rect, position_of_click):
+        if is_clicked:
+            if self.__checking_mouse_position(restart_rect, mouse_position):
                 logger.info("The button 'Restart' was pressed.")
                 return 'restart'
-            if self.__handle_mouse_press(exit_rect, position_of_click):
+            if self.__checking_mouse_position(exit_rect, mouse_position):
                 logger.info("The button 'Exit' was pressed.")
                 return 'exit'

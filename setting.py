@@ -1,42 +1,39 @@
-"""
-Copyright 2020 Egor Vavilov (shecspi@gmail.com)
-Licensed under the Apache License, Version 2.0
-"""
+#  Running Alien v.0.2
+#
+#  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
+#  Licensed under the Apache License, Version 2.0
 
-# Размеры экрана
+# Size of screen
 WINDOW_Y = 600
 WINDOW_X = 1000
 
-# Размеры игровой зоны
-WORKPLACE_Y = 600
-WORKPLACE_X = 1000
-WORKPLACE_LEFT_SIDE = (WINDOW_X - WORKPLACE_X) // 2
-WORKPLACE_RIGHT_SIDE = WINDOW_X - WORKPLACE_LEFT_SIDE
-
 FPS = 40
 
+# Speed of the world moving
 speed_of_world = 10
 
 WHITE = (255, 255, 255)
 BACKGROUND = (135, 206, 235)
 
-grass_src = 'grassMid.png'
-grass_first_src = 'sprites/grass_first.png'
+grass_base_src = 'grass_base.png'
+font_source = 'resources/fonts/Chilanka-Regular.ttf'
 
-player_src = ['p3_walk01.png', 'p3_walk02.png', 'p3_walk03.png', 'p3_walk04.png',
-              'p3_walk05.png', 'p3_walk06.png', 'p3_walk07.png', 'p3_walk08.png',
-              'p3_walk09.png', 'p3_walk10.png', 'p3_walk11.png']
-player_jump_src = 'p3_jump.png'
-player_down_src = 'sprites/player/down.png'
-player_hurt_src = 'p3_hurt.png'
+# Directories with resources
+resources_dir_grass = 'resources/sprites/grass/'
+resources_dir_clouds = 'resources/sprites/clouds/'
+resources_dir_enemies = 'resources/sprites/enemies/'
+resources_dir_coins = 'resources/sprites/coins/'
+resources_dir_player_stand = 'resources/sprites/player/stand/'
+resources_dir_player_run = 'resources/sprites/player/run/'
+resources_dir_player_jump = 'resources/sprites/player/jump/'
+resources_dir_player_hurt = 'resources/sprites/player/hurt/'
+resources_dir_button = 'resources/buttons/'
 
-enemies_src = ['pokerMad.png', 'cactus.png', 'snailWalk1.png']
-
-resources_dir_cloud = 'resources/sprites/clouds/'
-
-numbers_src = ['0.png', '1.png', '2.png', '3.png', '4.png',
-               '5.png', '6.png', '7.png', '8.png', '9.png']
-
-coin_src = 'sprites/coin.png'
-
-coin_sound_src = 'sounds/coin.ogg'
+buttons_source = {
+    'green': resources_dir_button + 'green_button.png',
+    'green_shadow': resources_dir_button + 'green_shadow_button.png',
+    'red': resources_dir_button + 'red_button.png',
+    'red_shadow': resources_dir_button + 'red_shadow_button.png',
+    'yellow': resources_dir_button + 'yellow_button.png',
+    'yellow_shadow': resources_dir_button + 'yellow_shadow_button.png'
+}

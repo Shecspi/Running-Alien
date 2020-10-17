@@ -1,4 +1,4 @@
-#  Running Alien v. 0.1
+#  Running Alien v.0.2
 #
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
@@ -15,7 +15,7 @@ import pygame
 
 
 class Score:
-    def __init__(self, screen):
+    def __init__(self, screen, font_source):
         self.current_score = 0
         self.best_score = 0
 
@@ -23,7 +23,7 @@ class Score:
         self.__y = 30
         self.__font_size = 24
         self.__font_color = (0, 0, 0)
-        self.__font_src = 'sprites/fonts/kenvector_future_thin.ttf'
+        self.__font_src = font_source
         self.__current_result_height = 0
         self.__screen = screen
 
@@ -48,6 +48,36 @@ class Score:
         self.__screen.blit(text, text_rect)
 
         return text_rect
+
+    def set_current_score(self, score: int) -> None:
+        """ Set the current score value.
+
+        :param score: The current score
+        :return: None
+        """
+        self.current_score = score
+
+    def set_best_score(self, score: int) -> None:
+        """ Set the best score value.
+
+        :param score: The best score
+        :return: None
+        """
+        self.best_score = score
+
+    def get_current_score(self) -> int:
+        """ Returns the current score value.
+
+        :return: int
+        """
+        return self.current_score
+
+    def get_best_score(self) -> int:
+        """ Returns the best score value.
+
+        :return: int
+        """
+        return self.best_score
 
     def display_current_score(self,):
         """  Draws the current result in the left top corner of screen.
