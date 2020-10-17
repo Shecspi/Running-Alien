@@ -33,7 +33,7 @@ class ScreenMenu:
         self.__green_shadow_button = button_source['green_shadow']
         self.__yellow_button = button_source['yellow']
         self.__yellow_shadow_button = button_source['yellow_shadow']
-        self.background = pygame.image.load("sprites/menu_background.jpg").convert_alpha()
+        self.background = pygame.image.load("resources/background/menu.jpg").convert_alpha()
 
     def __draw_button(self,
                       x: int,

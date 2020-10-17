@@ -8,9 +8,9 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self.connect = sqlite3.connect('resources/database.sqlite')
-        self.cursor = self.connect.cursor()
-        query = self.cursor.execute("""
+        self.__connect = sqlite3.connect('resources/database.sqlite')
+        self.__cursor = self.__connect.cursor()
+        query = self.__cursor.execute("""
             CREATE TABLE IF NOT EXISTS score (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 time TEXT,
@@ -18,7 +18,7 @@ class Database:
         """)
 
     def get_best_result(self):
-        query = self.cursor.execute("""SELECT MAX(score) FROM score LIMIT 1""")
+        query = self.__cursor.execute("""SELECT MAX(score) FROM score LIMIT 1""")
         result = query.fetchone()[0]
 
         if not result:
@@ -27,13 +27,13 @@ class Database:
             return result
 
     def reset(self):
-        query = self.cursor.execute("""
+        query = self.__cursor.execute("""
             DELETE FROM score
         """)
-        self.connect.commit()
+        self.__connect.commit()
 
     def insert_new_score(self, score):
-        query = self.cursor.execute(f"""
+        query = self.__cursor.execute(f"""
             INSERT INTO score (time, score) VALUES ('1', '{score}')
         """)
-        self.connect.commit()
+        self.__connect.commit()
