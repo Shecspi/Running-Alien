@@ -23,8 +23,8 @@ class ScreenMenu:
         self.screen_width, self.screen_height = self.screen.get_size()
 
         self.font_src = font_source
-        self.font_size_regular = 24
-        self.font_size_copyright = 16
+        self.font_size_regular = 30
+        self.font_size_copyright = 20
         self.font_size_title = 70
         self.font_color = (0, 0, 0)
         self.__red_button = button_source['red']
@@ -100,7 +100,7 @@ class ScreenMenu:
         """
         copyright_rect = self.__draw_text(x,
                                           y,
-                                          'Copyright 2020 Egor Vavilov (shecspi@gmail.com)',
+                                          'Copyright © 2020 Egor Vavilov (shecspi@gmail.com)',
                                           self.font_size_copyright)
         self.__draw_text(self.screen_width // 2,
                          copyright_rect.y + copyright_rect.height + 20,
@@ -142,7 +142,7 @@ class ScreenMenu:
         # Title
         title_rect = self.__draw_text(self.screen_width // 2,
                                       150,
-                                      'Running Alien v.0.2',
+                                      'Running Alien ver. 0.2',
                                       self.font_size_title)
         # Button "Start"
         start_rect = self.__draw_button(self.screen_width // 2,

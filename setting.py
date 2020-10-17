@@ -16,7 +16,7 @@ WHITE = (255, 255, 255)
 BACKGROUND = (135, 206, 235)
 
 grass_base_src = 'grass_base.png'
-font_source = 'resources/fonts/kenvector_future_thin.ttf'
+font_source = 'resources/fonts/Chilanka-Regular.ttf'
 
 # Directories with resources
 resources_dir_grass = 'resources/sprites/grass/'
