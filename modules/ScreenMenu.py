@@ -58,14 +58,12 @@ class ScreenMenu:
 
         if self.__checking_mouse_position(image_regular_rect, mouse_position):
             self.screen.blit(image_regular, image_regular_rect)
-            result = image_regular_rect
         else:
             self.screen.blit(image_shadow, image_shadow_rect)
-            result = image_shadow_rect
 
         self.__draw_text(x, y, message, self.font_size_regular)
 
-        return result
+        return image_shadow_rect
 
     def __draw_text(self,
                     x: int,
