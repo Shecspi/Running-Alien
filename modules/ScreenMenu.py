@@ -24,6 +24,7 @@ class ScreenMenu:
 
         self.font_src = font_source
         self.font_size_regular = 30
+        self.font_size_button = 24
         self.font_size_copyright = 20
         self.font_size_title = 70
         self.font_color = (0, 0, 0)
@@ -63,7 +64,7 @@ class ScreenMenu:
         else:
             self.screen.blit(image_shadow, image_shadow_rect)
 
-        self.__draw_text(x, y, message, self.font_size_regular)
+        self.__draw_text(x, y, message, self.font_size_button)
 
         return image_shadow_rect
 

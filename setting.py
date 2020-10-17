@@ -22,12 +22,16 @@ font_source = 'resources/fonts/Chilanka-Regular.ttf'
 resources_dir_grass = 'resources/sprites/grass/'
 resources_dir_clouds = 'resources/sprites/clouds/'
 resources_dir_enemies = 'resources/sprites/enemies/'
+resources_dir_special_enemies = 'resources/sprites/special_enemies/'
 resources_dir_coins = 'resources/sprites/coins/'
 resources_dir_player_stand = 'resources/sprites/player/stand/'
 resources_dir_player_run = 'resources/sprites/player/run/'
 resources_dir_player_jump = 'resources/sprites/player/jump/'
 resources_dir_player_hurt = 'resources/sprites/player/hurt/'
 resources_dir_button = 'resources/buttons/'
+
+laser_source = resources_dir_special_enemies + 'laser.png'
+laser_line_source = resources_dir_special_enemies + 'laser_line.png'
 
 buttons_source = {
     'green': resources_dir_button + 'green_button.png',

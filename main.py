@@ -15,6 +15,7 @@ from modules.Cloud import Cloud
 from modules.Score import Score
 from modules.Database import Database
 from modules.ScreenMenu import ScreenMenu
+from modules.SpecialEnemies import SpecialEnemy
 from setting import *
 from modules.Grass import Grass
 from modules.Player import Player
@@ -86,6 +87,9 @@ player_group = Player(screen_height - grass_y, player_stand_image)
 # Download sprites of enemies
 enemies_list = os.listdir(resources_dir_enemies)
 enemies_group = pygame.sprite.Group()
+
+# Laser
+laser_group = pygame.sprite.Group()
 
 # Download sprites of clouds
 clouds_list = os.listdir(resources_dir_clouds)
@@ -178,6 +182,7 @@ while cycle:
     grass_group.draw(screen)
     screen.blit(player_group.image, player_group.rect)
     enemies_group.draw(screen)
+    laser_group.draw(screen)
     coin_group.draw(screen)
 
     ###########################################
@@ -230,12 +235,26 @@ while cycle:
 
         if frame_counter == frame_enemies_show:
             # Spawn enemies
-            enemy_src = resources_dir_enemies + enemies_list[randint(0, len(enemies_list) - 1)]
-            image_enemy = pygame.image.load(enemy_src).convert_alpha()
+            if randint(1, 10) == 1:
+                enemy_source = laser_source
+                is_laser = True
+            else:
+                enemy_source = resources_dir_enemies + enemies_list[randint(0, len(enemies_list) - 1)]
+                is_laser = False
+
+            image_enemy = pygame.image.load(enemy_source).convert_alpha()
+            image_enemy_x, image_enemy_y, image_enemy_width, image_enemy_height = image_enemy.get_rect()
             Enemy(screen_width + grass_x // 2,
-                  center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2,
+                  center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
                   image_enemy,
                   enemies_group)
+
+            if is_laser:
+                image_laser_line = pygame.image.load(laser_line_source).convert_alpha()
+                SpecialEnemy(screen_width + grass_x // 2 - image_enemy_width,
+                             center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
+                             image_laser_line,
+                             laser_group)
 
             # Spawn coins
             coin_src = resources_dir_coins + coins_list[randint(0, len(coins_list) - 1)]
@@ -280,6 +299,7 @@ while cycle:
                            center_of_grass_y,
                            speed_of_world)
         enemies_group.update(speed_of_world)
+        laser_group.update(speed_of_world)
         coin_group.update(speed_of_world)
         clouds_group.update(speed_of_world)
 
