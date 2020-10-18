@@ -185,6 +185,7 @@ while cycle:
     enemies_group.draw(screen)
     laser_group.draw(screen)
     coin_regular_group.draw(screen)
+    coin_laser_group.draw(screen)
 
     ###########################################
     # --------------------------------------- #
@@ -237,14 +238,18 @@ while cycle:
             # ----------------------- #
             # Spawn enemies and coins #
             # ----------------------- #
-            if randint(1, 3) == 1:
-                enemy_source = laser_source
+            if randint(1, 5) == 1:
+                # Spawn a laser
+                image_enemy = pygame.image.load(laser_source).convert_alpha()
+                image_coin = pygame.image.load(coin_laser_source).convert_alpha()
                 is_laser = True
             else:
+                # Spawn a regular enemy
                 enemy_source = resources_dir_enemies + enemies_list[randint(0, len(enemies_list) - 1)]
+                image_enemy = pygame.image.load(enemy_source).convert_alpha()
+                image_coin = pygame.image.load(coin_regular_source).convert_alpha()
                 is_laser = False
 
-            image_enemy = pygame.image.load(enemy_source).convert_alpha()
             image_enemy_x, image_enemy_y, image_enemy_width, image_enemy_height = image_enemy.get_rect()
             Enemy(screen_width + grass_x // 2,
                   center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
@@ -252,26 +257,21 @@ while cycle:
                   enemies_group)
 
             if is_laser:
-                # Spawn a moving laser line
+                # Spawn a moving laser line and a special laser coin
                 image_laser_line = pygame.image.load(laser_line_source).convert_alpha()
                 SpecialEnemy(screen_width + grass_x // 2 - image_enemy_width,
                              center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
                              image_laser_line,
                              laser_group)
-
-                # Spawn a special coin
-                image_coin = pygame.image.load(coin_laser_source).convert_alpha()
-                Coin(screen_width + grass_x // 2,
-                     center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
-                     image_coin,
-                     coin_laser_group)
+                coin_group = coin_laser_group
             else:
-                # Spawn regular coin
-                image_coin = pygame.image.load(coin_regular_source).convert_alpha()
-                Coin(screen_width + grass_x // 2,
-                     center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
-                     image_coin,
-                     coin_regular_group)
+                # Spawn a regular coin
+                coin_group = coin_regular_group
+
+            Coin(screen_width + grass_x // 2,
+                 center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
+                 image_coin,
+                 coin_group)
 
             frame_counter = 0
             frame_enemies_show = randint(*enemies_spawn_formula)
@@ -310,11 +310,13 @@ while cycle:
         enemies_group.update(speed_of_world)
         laser_group.update(speed_of_world)
         coin_regular_group.update(speed_of_world)
+        coin_laser_group.update(speed_of_world)
         clouds_group.update(speed_of_world)
 
         # Checking collision of character and enemies
         hit_player_enemy = pygame.sprite.spritecollide(player_group, enemies_group, False)
         hit_player_coin = pygame.sprite.spritecollide(player_group, coin_regular_group, True)
+        hit_player_lasercoin = pygame.sprite.spritecollide(player_group, coin_laser_group, True)
 
         if hit_player_enemy:
             config.is_running = False
@@ -326,7 +328,11 @@ while cycle:
         # Checking collision of character and coins
         if hit_player_coin:
             score.set_current_score(score.get_current_score() + 1)
-            logger.info(f'Found coin! Your current result is {score.get_current_score()}')
+            logger.info(f'Found a coin! Your current result is {score.get_current_score()}')
+
+        if hit_player_lasercoin:
+            score.set_current_score(score.get_current_score() + 3)
+            logger.info(f'Found a laser-coin! Your current result is {score.get_current_score()}')
 
     ######################
     # Screen 'Game Over' #
