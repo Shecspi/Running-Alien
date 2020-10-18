@@ -27,7 +27,8 @@ from modules.Enemies import Enemy
 
 def initial_position():
     enemies_group.empty()
-    coin_group.empty()
+    laser_group.empty()
+    coin_regular_group.empty()
     score.set_current_score(0)
     config.is_died = False
     config.is_running = True
@@ -96,8 +97,8 @@ clouds_list = os.listdir(resources_dir_clouds)
 clouds_group = pygame.sprite.Group()
 
 # Download sprites of coins
-coins_list = os.listdir(resources_dir_coins)
-coin_group = pygame.sprite.Group()
+coin_regular_group = pygame.sprite.Group()
+coin_laser_group = pygame.sprite.Group()
 
 # The formula for the random spawn of enemies
 clouds_spawn_formula = (FPS // 2, FPS * 1.5)
@@ -183,7 +184,7 @@ while cycle:
     screen.blit(player_group.image, player_group.rect)
     enemies_group.draw(screen)
     laser_group.draw(screen)
-    coin_group.draw(screen)
+    coin_regular_group.draw(screen)
 
     ###########################################
     # --------------------------------------- #
@@ -221,11 +222,10 @@ while cycle:
     # Screen "Running" #
     ####################
     elif config.is_running:
-        # ------------------ #
-        # Spawn of resources #
-        # ------------------ #
         if frame_counter == frame_clouds_show:
-            # Spawn clouds
+            # ------------ #
+            # Spawn clouds #
+            # ------------ #
             cloud_src = resources_dir_clouds + clouds_list[randint(0, len(clouds_list) - 1)]
             cloud_image = pygame.image.load(cloud_src).convert_alpha()
             Cloud(screen_width + grass_x // 2,
@@ -234,8 +234,10 @@ while cycle:
                   clouds_group)
 
         if frame_counter == frame_enemies_show:
-            # Spawn enemies
-            if randint(1, 10) == 1:
+            # ----------------------- #
+            # Spawn enemies and coins #
+            # ----------------------- #
+            if randint(1, 3) == 1:
                 enemy_source = laser_source
                 is_laser = True
             else:
@@ -250,19 +252,26 @@ while cycle:
                   enemies_group)
 
             if is_laser:
+                # Spawn a moving laser line
                 image_laser_line = pygame.image.load(laser_line_source).convert_alpha()
                 SpecialEnemy(screen_width + grass_x // 2 - image_enemy_width,
                              center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
                              image_laser_line,
                              laser_group)
 
-            # Spawn coins
-            coin_src = resources_dir_coins + coins_list[randint(0, len(coins_list) - 1)]
-            image_coin = pygame.image.load(coin_src).convert_alpha()
-            Coin(screen_width + grass_x // 2,
-                 center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
-                 image_coin,
-                 coin_group)
+                # Spawn a special coin
+                image_coin = pygame.image.load(coin_laser_source).convert_alpha()
+                Coin(screen_width + grass_x // 2,
+                     center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
+                     image_coin,
+                     coin_laser_group)
+            else:
+                # Spawn regular coin
+                image_coin = pygame.image.load(coin_regular_source).convert_alpha()
+                Coin(screen_width + grass_x // 2,
+                     center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
+                     image_coin,
+                     coin_regular_group)
 
             frame_counter = 0
             frame_enemies_show = randint(*enemies_spawn_formula)
@@ -300,12 +309,12 @@ while cycle:
                            speed_of_world)
         enemies_group.update(speed_of_world)
         laser_group.update(speed_of_world)
-        coin_group.update(speed_of_world)
+        coin_regular_group.update(speed_of_world)
         clouds_group.update(speed_of_world)
 
         # Checking collision of character and enemies
         hit_player_enemy = pygame.sprite.spritecollide(player_group, enemies_group, False)
-        hit_player_coin = pygame.sprite.spritecollide(player_group, coin_group, True)
+        hit_player_coin = pygame.sprite.spritecollide(player_group, coin_regular_group, True)
 
         if hit_player_enemy:
             config.is_running = False

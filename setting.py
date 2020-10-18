@@ -33,6 +33,9 @@ resources_dir_button = 'resources/buttons/'
 laser_source = resources_dir_special_enemies + 'laser.png'
 laser_line_source = resources_dir_special_enemies + 'laser_line.png'
 
+coin_regular_source = resources_dir_coins + 'regular.png'
+coin_laser_source = resources_dir_coins + 'laser.png'
+
 buttons_source = {
     'green': resources_dir_button + 'green_button.png',
     'green_shadow': resources_dir_button + 'green_shadow_button.png',
