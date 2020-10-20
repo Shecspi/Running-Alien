@@ -15,8 +15,8 @@ class Cloud(pygame.sprite.Sprite):
 
         self.add(group)
 
-    def update(self, speed_of_world):
+    def update(self, setting):
         if self.rect.x > 0 - self.rect.width:
-            self.rect.x -= speed_of_world // 2
+            self.rect.x -= setting.get_speed_of_world() // 2
         else:
             self.kill()

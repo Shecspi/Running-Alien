@@ -15,7 +15,8 @@ from modules.Cloud import Cloud
 from modules.Score import Score
 from modules.Database import Database
 from modules.ScreenMenu import ScreenMenu
-from modules.SpecialEnemies import SpecialEnemy
+from modules.SpecialEnemies import LaserLinelEnemy
+from modules.Setting import Setting
 from setting import *
 from modules.Grass import Grass
 from modules.Player import Player
@@ -27,7 +28,7 @@ from modules.Enemies import Enemy
 
 def initial_position():
     enemies_group.empty()
-    laser_group.empty()
+    laser_line_group.empty()
     coin_regular_group.empty()
     score.set_current_score(0)
     config.is_died = False
@@ -47,6 +48,7 @@ screen_width, screen_height = screen.get_rect()[2:4]
 clock = pygame.time.Clock()
 
 db = Database()
+setting = Setting()
 screen_menu = ScreenMenu(screen, font_source, buttons_source)
 
 # Download sprites of grass
@@ -90,7 +92,7 @@ enemies_list = os.listdir(resources_dir_enemies)
 enemies_group = pygame.sprite.Group()
 
 # Laser
-laser_group = pygame.sprite.Group()
+laser_line_group = pygame.sprite.Group()
 
 # Download sprites of clouds
 clouds_list = os.listdir(resources_dir_clouds)
@@ -183,7 +185,7 @@ while cycle:
     grass_group.draw(screen)
     screen.blit(player_group.image, player_group.rect)
     enemies_group.draw(screen)
-    laser_group.draw(screen)
+    laser_line_group.draw(screen)
     coin_regular_group.draw(screen)
     coin_laser_group.draw(screen)
 
@@ -259,10 +261,10 @@ while cycle:
             if is_laser:
                 # Spawn a moving laser line and a special laser coin
                 image_laser_line = pygame.image.load(laser_line_source).convert_alpha()
-                SpecialEnemy(screen_width + grass_x // 2 - image_enemy_width,
-                             center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
-                             image_laser_line,
-                             laser_group)
+                LaserLinelEnemy(screen_width + grass_x // 2 - image_enemy_width,
+                                center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
+                                image_laser_line,
+                                laser_line_group)
                 coin_group = coin_laser_group
             else:
                 # Spawn a regular coin
@@ -306,19 +308,20 @@ while cycle:
                            grass_x,
                            qty_of_grass,
                            center_of_grass_y,
-                           speed_of_world)
-        enemies_group.update(speed_of_world)
-        laser_group.update(speed_of_world)
-        coin_regular_group.update(speed_of_world)
-        coin_laser_group.update(speed_of_world)
-        clouds_group.update(speed_of_world)
+                           setting)
+        enemies_group.update(setting)
+        laser_line_group.update(setting)
+        coin_regular_group.update(setting)
+        coin_laser_group.update(setting)
+        clouds_group.update(setting)
 
         # Checking collision of character and enemies
         hit_player_enemy = pygame.sprite.spritecollide(player_group, enemies_group, False)
         hit_player_coin = pygame.sprite.spritecollide(player_group, coin_regular_group, True)
         hit_player_lasercoin = pygame.sprite.spritecollide(player_group, coin_laser_group, True)
+        hit_player_laserline = pygame.sprite.spritecollide(player_group, laser_line_group, False)
 
-        if hit_player_enemy:
+        if hit_player_enemy or hit_player_laserline:
             config.is_running = False
             config.is_died = True
             player_hurt_src = resources_dir_player_hurt + player_hurt_list[randint(0, len(player_hurt_list) - 1)]

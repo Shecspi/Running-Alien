@@ -9,9 +9,6 @@ WINDOW_X = 1000
 
 FPS = 40
 
-# Speed of the world moving
-speed_of_world = 10
-
 WHITE = (255, 255, 255)
 BACKGROUND = (135, 206, 235)
 
