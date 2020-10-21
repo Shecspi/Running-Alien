@@ -36,7 +36,7 @@ def initial_position(s: Setting):
     setting.set_is_record(False)
 
     s.set_is_jump(False)
-    config.jump_count = config.jump_count_ideal
+    s.reset_counter_jump()
     player_group.rect.bottomleft = (150, screen_height - grass_y)
 
 
@@ -285,16 +285,16 @@ while cycle:
         # ------- #
         if setting.get_is_jump():
             # Jumping
-            if config.jump_count >= - config.jump_count_ideal:
+            if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
                 player_group.update(resources_dir_player_jump + player_jump_src,
                                     setting.get_is_running(),
                                     setting.get_is_jump(),
-                                    config.jump_count)
-                config.jump_count -= 1
+                                    setting.get_counter_jump())
+                setting.set_counter_jump(setting.get_counter_jump() - 1)
             else:
                 # Landing
                 setting.set_is_jump(False)
-                config.jump_count = config.jump_count_ideal
+                setting.reset_counter_jump()
 
                 player_src = resources_dir_player_run + player_run_list[player_count]
                 player_group.update(player_src)

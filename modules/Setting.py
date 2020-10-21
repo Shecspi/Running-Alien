@@ -23,8 +23,23 @@ class Setting:
         self.__is_save: bool = False
         self.__is_start: bool = False
 
+        self.__counter_jump: int = 10
+        self.__counter_initial_jump: int = 10
+
         self.__fps: int = 40  # Frames per a second
         self.__speed_of_world: int = 10  # Speed of moving the world
+
+    def get_counter_jump(self) -> int:
+        return self.__counter_jump
+
+    def set_counter_jump(self, count: int) -> None:
+        self.__counter_jump = count
+
+    def get_counter_initial_jump(self):
+        return self.__counter_initial_jump
+
+    def reset_counter_jump(self):
+        self.__counter_jump = self.__counter_initial_jump
 
     def get_is_died(self) -> bool:
         return self.__is_died
