@@ -26,16 +26,16 @@ from modules.Enemies import Enemy
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
 
 
-def initial_position():
+def initial_position(s: Setting):
     enemies_group.empty()
     laser_line_group.empty()
     coin_regular_group.empty()
     score.set_current_score(0)
-    config.is_died = False
-    config.is_running = True
-    config.is_record = False
+    s.set_is_died(False)
+    s.set_is_running(True)
+    setting.set_is_record(False)
 
-    config.is_jump = False
+    s.set_is_jump(False)
     config.jump_count = config.jump_count_ideal
     player_group.rect.bottomleft = (150, screen_height - grass_y)
 
@@ -103,7 +103,7 @@ coin_regular_group = pygame.sprite.Group()
 coin_laser_group = pygame.sprite.Group()
 
 # The formula for the random spawn of enemies
-clouds_spawn_formula = (FPS // 2, FPS * 1.5)
+clouds_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 1.5)
 frame_clouds_show = randint(*clouds_spawn_formula)
 
 # To select sprites of player
@@ -113,7 +113,7 @@ player_count = 0
 frame_counter = 0
 
 # The formula for the random spawn of enemies
-enemies_spawn_formula = (FPS // 2, FPS * 3)
+enemies_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
 # The class to draw current and best results on the screen
@@ -147,16 +147,16 @@ while cycle:
         ##################
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             # Player can use the button "Escape" only on the screens "Running" and "Pause"
-            if config.is_start and not config.is_died:
+            if setting.get_is_start() and not setting.get_is_died():
                 # Pause
-                if not config.is_pause:
-                    config.is_pause = True
-                    config.is_running = False
+                if not setting.get_is_pause():
+                    setting.set_is_pause(True)
+                    setting.set_is_running(False)
                     logger.info('Paused...')
                 # Resume
                 else:
-                    config.is_pause = False
-                    config.is_running = True
+                    setting.set_is_pause(False)
+                    setting.set_is_running(True)
                     logger.info('Resumed')
 
         #################
@@ -164,10 +164,10 @@ while cycle:
         #################
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             # Player can jump only on screen "Running", not "Start", "Pause" and "Died"
-            if config.is_start and not config.is_pause and not config.is_died:
+            if setting.get_is_start() and not setting.get_is_pause() and not setting.get_is_died():
                 # There is no double jump
-                if not config.is_jump:
-                    config.is_jump = True
+                if not setting.get_is_jump():
+                    setting.set_is_jump(True)
                     player_jump_src = player_jump_list[randint(0, len(player_jump_list) - 1)]
                     logger.info('Jump')
 
@@ -176,7 +176,7 @@ while cycle:
         ######################
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             # Player can use mouse button only on the screens "Start", "Pause" and "Died"
-            if not config.is_start or config.is_pause or config.is_died:
+            if not setting.get_is_start() or setting.get_is_pause() or setting.get_is_died():
                 coordinates_of_mouse = event.pos
                 is_clicked = True
 
@@ -198,11 +198,11 @@ while cycle:
     #######################
     # Screen "Start menu" #
     #######################
-    if not config.is_start:
+    if not setting.get_is_start():
         result = screen_menu.display_start_menu(mouse_current_position, is_clicked)
         if result == 'start':
-            config.is_start = True
-            config.is_running = True
+            setting.set_is_start(True)
+            setting.set_is_running(True)
         elif result == 'reset':
             db.reset()
             # TODO Make a beautiful animation to inform player about new record
@@ -213,18 +213,18 @@ while cycle:
     ##################
     # Screen "Pause" #
     ##################
-    elif config.is_pause:
+    elif setting.get_is_pause():
         result = screen_menu.display_pause_menu(mouse_current_position, is_clicked)
         if result == 'resume':
-            config.is_pause = False
-            config.is_running = True
+            setting.set_is_pause(False)
+            setting.set_is_running(True)
         elif result == 'exit':
             exit()
 
     ####################
     # Screen "Running" #
     ####################
-    elif config.is_running:
+    elif setting.get_is_running():
         if frame_counter == frame_clouds_show:
             # ------------ #
             # Spawn clouds #
@@ -283,17 +283,17 @@ while cycle:
         # ------- #
         # Jumping #
         # ------- #
-        if config.is_jump:
+        if setting.get_is_jump():
             # Jumping
             if config.jump_count >= - config.jump_count_ideal:
                 player_group.update(resources_dir_player_jump + player_jump_src,
-                                    config.is_running,
-                                    config.is_jump,
+                                    setting.get_is_running(),
+                                    setting.get_is_jump(),
                                     config.jump_count)
                 config.jump_count -= 1
             else:
                 # Landing
-                config.is_jump = False
+                setting.set_is_jump(False)
                 config.jump_count = config.jump_count_ideal
 
                 player_src = resources_dir_player_run + player_run_list[player_count]
@@ -322,8 +322,8 @@ while cycle:
         hit_player_laserline = pygame.sprite.spritecollide(player_group, laser_line_group, False)
 
         if hit_player_enemy or hit_player_laserline:
-            config.is_running = False
-            config.is_died = True
+            setting.set_is_running(False)
+            setting.set_is_died(True)
             player_hurt_src = resources_dir_player_hurt + player_hurt_list[randint(0, len(player_hurt_list) - 1)]
             player_group.update(player_hurt_src)
             logger.info('Crash!!!')
@@ -340,24 +340,24 @@ while cycle:
     ######################
     # Screen 'Game Over' #
     ######################
-    elif config.is_died:
-        if not config.is_save:
+    elif setting.get_is_died():
+        if not setting.get_is_save():
             db.insert_new_score(score.get_current_score())
-            config.is_save = True
+            setting.set_is_save(True)
 
         result = screen_menu.display_death_menu(mouse_current_position, is_clicked)
         if result == 'restart':
             score.set_best_score(score.get_current_score())
-            initial_position()
+            initial_position(setting)
         elif result == 'exit':
             cycle = False
 
     ##################
     # Update counter #
     ##################
-    if score.get_current_score() > score.get_best_score() and not config.is_record:
+    if score.get_current_score() > score.get_best_score() and not setting.get_is_record():
         logger.info("It's a new record!!!")
-        config.is_record = True
+        setting.set_is_record(True)
     score.display_current_score()
     score.display_best_score()
 
@@ -369,4 +369,4 @@ while cycle:
         player_count += 1
 
     screen.fill(BACKGROUND)
-    clock.tick(FPS)
+    clock.tick(setting.get_fps())
