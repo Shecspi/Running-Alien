@@ -27,7 +27,20 @@ class Setting:
         self.__counter_initial_jump: int = 10
 
         self.__fps: int = 40  # Frames per a second
+        self.__window_width: int = 1000  # Width of window
+        self.__window_height = 600  # Height of window
         self.__speed_of_world: int = 10  # Speed of moving the world
+
+        self.__color_background: tuple = (135, 206, 235)
+
+    def get_color_background(self) -> tuple:
+        return self.__color_background
+
+    def get_window_width(self) -> int:
+        return self.__window_width
+
+    def get_window_height(self) -> int:
+        return self.__window_height
 
     def get_counter_jump(self) -> int:
         return self.__counter_jump

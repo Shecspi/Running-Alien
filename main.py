@@ -9,21 +9,25 @@ from random import randint
 import pygame
 from loguru import logger
 
-import config
 from modules.Coin import Coin
 from modules.Cloud import Cloud
-from modules.Score import Score
 from modules.Database import Database
-from modules.ScreenMenu import ScreenMenu
-from modules.SpecialEnemies import LaserLinelEnemy
-from modules.Setting import Setting
-from setting import *
 from modules.Grass import Grass
-from modules.Player import Player
 from modules.Enemies import Enemy
+from modules.Player import Player
+from modules.Score import Score
+from modules.ScreenMenu import ScreenMenu
+from modules.Setting import Setting
+from modules.SpecialEnemies import LaserLinelEnemy
+from modules.Sprite import Sprite
+from setting import *
 
 
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
+
+db = Database()
+setting = Setting()
+sprite = Sprite()
 
 
 def initial_position(s: Setting):
@@ -43,12 +47,10 @@ def initial_position(s: Setting):
 pygame.init()
 
 pygame.time.set_timer(pygame.USEREVENT, 2000)
-screen = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
+screen = pygame.display.set_mode((setting.get_window_width(), setting.get_window_height()))
 screen_width, screen_height = screen.get_rect()[2:4]
 clock = pygame.time.Clock()
 
-db = Database()
-setting = Setting()
 screen_menu = ScreenMenu(screen, font_source, buttons_source)
 
 # Download sprites of grass
@@ -87,15 +89,13 @@ player_hurt_list = os.listdir(resources_dir_player_hurt)
 
 player_group = Player(screen_height - grass_y, player_stand_image)
 
-# Download sprites of enemies
-enemies_list = os.listdir(resources_dir_enemies)
+# Initialization of enemy's group
 enemies_group = pygame.sprite.Group()
 
-# Laser
+# Initialization of laser line's group
 laser_line_group = pygame.sprite.Group()
 
-# Download sprites of clouds
-clouds_list = os.listdir(resources_dir_clouds)
+# Initialization of cloud's group
 clouds_group = pygame.sprite.Group()
 
 # Download sprites of coins
@@ -229,7 +229,7 @@ while cycle:
             # ------------ #
             # Spawn clouds #
             # ------------ #
-            cloud_src = resources_dir_clouds + clouds_list[randint(0, len(clouds_list) - 1)]
+            cloud_src = sprite.get_random_cloud()
             cloud_image = pygame.image.load(cloud_src).convert_alpha()
             Cloud(screen_width + grass_x // 2,
                   randint(100, 300),
@@ -242,14 +242,14 @@ while cycle:
             # ----------------------- #
             if randint(1, 5) == 1:
                 # Spawn a laser
-                image_enemy = pygame.image.load(laser_source).convert_alpha()
-                image_coin = pygame.image.load(coin_laser_source).convert_alpha()
+                image_enemy = pygame.image.load(sprite.get_laser_gun()).convert_alpha()
+                image_coin = pygame.image.load(sprite.get_coin_level_2()).convert_alpha()
                 is_laser = True
             else:
                 # Spawn a regular enemy
-                enemy_source = resources_dir_enemies + enemies_list[randint(0, len(enemies_list) - 1)]
+                enemy_source = sprite.get_random_enemy()
                 image_enemy = pygame.image.load(enemy_source).convert_alpha()
-                image_coin = pygame.image.load(coin_regular_source).convert_alpha()
+                image_coin = pygame.image.load(sprite.get_coin_level_1()).convert_alpha()
                 is_laser = False
 
             image_enemy_x, image_enemy_y, image_enemy_width, image_enemy_height = image_enemy.get_rect()
@@ -260,7 +260,7 @@ while cycle:
 
             if is_laser:
                 # Spawn a moving laser line and a special laser coin
-                image_laser_line = pygame.image.load(laser_line_source).convert_alpha()
+                image_laser_line = pygame.image.load(sprite.get_laser_line()).convert_alpha()
                 LaserLinelEnemy(screen_width + grass_x // 2 - image_enemy_width,
                                 center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
                                 image_laser_line,
@@ -368,5 +368,5 @@ while cycle:
     else:
         player_count += 1
 
-    screen.fill(BACKGROUND)
+    screen.fill(setting.get_color_background())
     clock.tick(setting.get_fps())
