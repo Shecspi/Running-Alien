@@ -20,7 +20,6 @@ from modules.ScreenMenu import ScreenMenu
 from modules.Setting import Setting
 from modules.SpecialEnemies import LaserLinelEnemy
 from modules.Sprite import Sprite
-from setting import *
 
 
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
@@ -51,10 +50,10 @@ screen = pygame.display.set_mode((setting.get_window_width(), setting.get_window
 screen_width, screen_height = screen.get_rect()[2:4]
 clock = pygame.time.Clock()
 
-screen_menu = ScreenMenu(screen, font_source, buttons_source)
+screen_menu = ScreenMenu(screen, sprite)
 
 # Download sprites of grass
-grass_image = pygame.image.load(resources_dir_grass + grass_base_src)
+grass_image = pygame.image.load(sprite.get_platform_grass())
 grass_x, grass_y = grass_image.get_size()
 qty_of_grass = screen_width // grass_x + 2
 
@@ -71,22 +70,8 @@ for i in range(0, qty_of_grass):
           grass_group)
     initial_point += grass_x
 
-# Download sprites of running player
-# To make correct animation the files of running player should have the following names:
-#  ...1.png for first frame, ...2.png for second frame etc.
-player_run_list = sorted(os.listdir(resources_dir_player_run))
-
-# Use a random picture for jump player
-player_jump_list = os.listdir(resources_dir_player_jump)
-
 # Use a random picture for stand player
-player_stand_list = os.listdir(resources_dir_player_stand)
-player_stand_src = resources_dir_player_stand + player_stand_list[randint(0, len(player_stand_list) - 1)]
-player_stand_image = pygame.image.load(player_stand_src).convert_alpha()
-
-# Use a random picture for hurt player
-player_hurt_list = os.listdir(resources_dir_player_hurt)
-
+player_stand_image = pygame.image.load(sprite.get_random_player_stand()).convert_alpha()
 player_group = Player(screen_height - grass_y, player_stand_image)
 
 # Initialization of enemy's group
@@ -106,9 +91,6 @@ coin_laser_group = pygame.sprite.Group()
 clouds_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 1.5)
 frame_clouds_show = randint(*clouds_spawn_formula)
 
-# To select sprites of player
-player_count = 0
-
 # Counter of frames for the random spawn of enemies
 frame_counter = 0
 
@@ -117,7 +99,7 @@ enemies_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
 
 # The class to draw current and best results on the screen
-score = Score(screen, font_source)
+score = Score(screen, sprite.get_font())
 
 # The best result
 score.best_score = db.get_best_result()
@@ -168,7 +150,7 @@ while cycle:
                 # There is no double jump
                 if not setting.get_is_jump():
                     setting.set_is_jump(True)
-                    player_jump_src = player_jump_list[randint(0, len(player_jump_list) - 1)]
+                    player_jump_src = sprite.get_random_player_jump()
                     logger.info('Jump')
 
         ######################
@@ -286,7 +268,7 @@ while cycle:
         if setting.get_is_jump():
             # Jumping
             if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
-                player_group.update(resources_dir_player_jump + player_jump_src,
+                player_group.update(player_jump_src,
                                     setting.get_is_running(),
                                     setting.get_is_jump(),
                                     setting.get_counter_jump())
@@ -296,11 +278,9 @@ while cycle:
                 setting.set_is_jump(False)
                 setting.reset_counter_jump()
 
-                player_src = resources_dir_player_run + player_run_list[player_count]
-                player_group.update(player_src)
+                player_group.update(sprite.get_next_run_player_sprite())
         else:
-            player_src = resources_dir_player_run + player_run_list[player_count]
-            player_group.update(player_src)
+            player_group.update(sprite.get_next_run_player_sprite())
 
         # Update sprites
         grass_group.update(grass_image,
@@ -324,8 +304,7 @@ while cycle:
         if hit_player_enemy or hit_player_laserline:
             setting.set_is_running(False)
             setting.set_is_died(True)
-            player_hurt_src = resources_dir_player_hurt + player_hurt_list[randint(0, len(player_hurt_list) - 1)]
-            player_group.update(player_hurt_src)
+            player_group.update(sprite.get_random_player_hurt())
             logger.info('Crash!!!')
 
         # Checking collision of character and coins
@@ -362,11 +341,6 @@ while cycle:
     score.display_best_score()
 
     pygame.display.update()
-
-    if player_count == len(player_run_list) - 1:
-        player_count = 0
-    else:
-        player_count += 1
 
     screen.fill(setting.get_color_background())
     clock.tick(setting.get_fps())

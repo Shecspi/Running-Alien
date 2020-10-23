@@ -18,22 +18,22 @@ from loguru import logger
 
 
 class ScreenMenu:
-    def __init__(self, screen, font_source, button_source):
+    def __init__(self, screen, sprite):
         self.screen = screen
         self.screen_width, self.screen_height = self.screen.get_size()
 
-        self.font_src = font_source
+        self.font_src = sprite.get_font()
         self.font_size_regular = 30
         self.font_size_button = 24
         self.font_size_copyright = 20
         self.font_size_title = 70
         self.font_color = (0, 0, 0)
-        self.__red_button = button_source['red']
-        self.__red_shadow_button = button_source['red_shadow']
-        self.__green_button = button_source['green']
-        self.__green_shadow_button = button_source['green_shadow']
-        self.__yellow_button = button_source['yellow']
-        self.__yellow_shadow_button = button_source['yellow_shadow']
+        self.__red_button = sprite.get_button('red')
+        self.__red_shadow_button = sprite.get_button('red_shadow')
+        self.__green_button = sprite.get_button('green')
+        self.__green_shadow_button = sprite.get_button('green_shadow')
+        self.__yellow_button = sprite.get_button('yellow')
+        self.__yellow_shadow_button = sprite.get_button('yellow_shadow')
         self.background = pygame.image.load("resources/background/menu.jpg").convert_alpha()
 
     def __draw_button(self,
