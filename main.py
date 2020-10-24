@@ -310,14 +310,17 @@ while cycle:
 
         result = screen_menu.display_death_menu(mouse_current_position, is_clicked)
         if result == 'restart':
+            if score.get_current_score() > score.get_best_score():
+                score.set_best_score(score.get_current_score())
+            else:
+                score.set_best_score(score.get_best_score())
+            score.set_current_score(0)
+
             setting.set_is_died(False)
             setting.set_is_running(True)
             setting.set_is_record(False)
             setting.set_is_jump(False)
             setting.reset_counter_jump()
-
-            score.set_current_score(0)
-            score.set_best_score(score.get_best_score())
 
             enemies_group.empty()
             laser_line_group.empty()
