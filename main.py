@@ -3,7 +3,6 @@
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
 
-import os
 from random import randint
 
 import pygame
@@ -28,21 +27,6 @@ db = Database()
 setting = Setting()
 sprite = Sprite()
 
-
-def initial_position(s: Setting):
-    enemies_group.empty()
-    laser_line_group.empty()
-    coin_regular_group.empty()
-    score.set_current_score(0)
-    s.set_is_died(False)
-    s.set_is_running(True)
-    setting.set_is_record(False)
-
-    s.set_is_jump(False)
-    s.reset_counter_jump()
-    player_group.rect.bottomleft = (150, screen_height - grass_y)
-
-
 pygame.init()
 
 pygame.time.set_timer(pygame.USEREVENT, 2000)
@@ -52,7 +36,7 @@ clock = pygame.time.Clock()
 
 screen_menu = ScreenMenu(screen, sprite)
 
-# Download sprites of grass
+# Initializations of sprites of grass
 grass_image = pygame.image.load(sprite.get_platform_grass())
 grass_x, grass_y = grass_image.get_size()
 qty_of_grass = screen_width // grass_x + 2
@@ -83,7 +67,7 @@ laser_line_group = pygame.sprite.Group()
 # Initialization of cloud's group
 clouds_group = pygame.sprite.Group()
 
-# Download sprites of coins
+# Initialization of coin's groups
 coin_regular_group = pygame.sprite.Group()
 coin_laser_group = pygame.sprite.Group()
 
@@ -102,7 +86,7 @@ frame_enemies_show = randint(*enemies_spawn_formula)
 score = Score(screen, sprite.get_font())
 
 # The best result
-score.best_score = db.get_best_result()
+score.set_best_score(db.get_best_result())
 
 cycle = True
 
@@ -326,8 +310,20 @@ while cycle:
 
         result = screen_menu.display_death_menu(mouse_current_position, is_clicked)
         if result == 'restart':
-            score.set_best_score(score.get_current_score())
-            initial_position(setting)
+            setting.set_is_died(False)
+            setting.set_is_running(True)
+            setting.set_is_record(False)
+            setting.set_is_jump(False)
+            setting.reset_counter_jump()
+
+            score.set_current_score(0)
+            score.set_best_score(score.get_best_score())
+
+            enemies_group.empty()
+            laser_line_group.empty()
+            coin_regular_group.empty()
+            coin_laser_group.empty()
+            player_group.rect.bottomleft = (150, screen_height - grass_y)
         elif result == 'exit':
             cycle = False
 

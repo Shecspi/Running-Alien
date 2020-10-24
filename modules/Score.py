@@ -16,8 +16,8 @@ import pygame
 
 class Score:
     def __init__(self, screen, font_source):
-        self.current_score = 0
-        self.best_score = 0
+        self.__current_score = 0
+        self.__best_score = 0
 
         self.__x = 30
         self.__y = 30
@@ -49,13 +49,27 @@ class Score:
 
         return text_rect
 
+    def get_current_score(self) -> int:
+        """ Returns the current score value.
+
+        :return: int
+        """
+        return self.__current_score
+
     def set_current_score(self, score: int) -> None:
         """ Set the current score value.
 
         :param score: The current score
         :return: None
         """
-        self.current_score = score
+        self.__current_score = score
+
+    def get_best_score(self) -> int:
+        """ Returns the best score value.
+
+        :return: int
+        """
+        return self.__best_score
 
     def set_best_score(self, score: int) -> None:
         """ Set the best score value.
@@ -63,36 +77,22 @@ class Score:
         :param score: The best score
         :return: None
         """
-        self.best_score = score
+        self.__best_score = score
 
-    def get_current_score(self) -> int:
-        """ Returns the current score value.
-
-        :return: int
-        """
-        return self.current_score
-
-    def get_best_score(self) -> int:
-        """ Returns the best score value.
-
-        :return: int
-        """
-        return self.best_score
-
-    def display_current_score(self,):
+    def display_current_score(self) -> None:
         """  Draws the current result in the left top corner of screen.
 
         :return: None
         """
-        text = self.__draw_text(self.__x, self.__y, f'Score: {self.current_score}', self.__font_size)
+        text = self.__draw_text(self.__x, self.__y, f'Score: {self.__current_score}', self.__font_size)
         self.__current_result_height = text.height
 
-    def display_best_score(self):
+    def display_best_score(self) -> None:
         """ Draws the best result in the left top corner of screen.
 
         :return: None
         """
         self.__draw_text(self.__x,
                          self.__y + self.__current_result_height,
-                         f'The best result: {self.best_score}',
+                         f'The best result: {self.__best_score}',
                          self.__font_size)

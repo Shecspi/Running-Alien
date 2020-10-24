@@ -2,6 +2,7 @@
 #
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
+
 import os
 from random import randint
 
@@ -48,10 +49,10 @@ class Sprite:
         """
         self.__list_of_run_players = sorted(os.listdir(self.__dir_player_run))
 
-    def get_font(self):
+    def get_font(self) -> str:
         return self.__font
 
-    def get_button(self, style):
+    def get_button(self, style) -> str:
         buttons_source = {
             'green': self.__dir_button + self.__button_green,
             'green_shadow': self.__dir_button + self.__button_green_shadow,
@@ -62,20 +63,20 @@ class Sprite:
         }
         return buttons_source[style]
 
-    def get_platform_grass(self):
+    def get_platform_grass(self) -> str:
         return self.__dir_platform + self.__platform_grass
 
-    def get_random_player_jump(self):
+    def get_random_player_jump(self) -> str:
         lst = os.listdir(self.__dir_player_jump)
         source = self.__dir_player_jump + lst[randint(0, len(lst) - 1)]
         return source
 
-    def get_random_player_hurt(self):
+    def get_random_player_hurt(self) -> str:
         lst = os.listdir(self.__dir_player_hurt)
         source = self.__dir_player_hurt + lst[randint(0, len(lst) - 1)]
         return source
 
-    def get_next_run_player_sprite(self):
+    def get_next_run_player_sprite(self) -> str:
         source = self.__dir_player_run + self.__list_of_run_players[self.__counter_run_player - 1]
 
         if self.__counter_run_player == len(self.__list_of_run_players) - 1:
@@ -119,7 +120,7 @@ class Sprite:
         source = self.__dir_clouds + lst[randint(0, len(lst) - 1)]
         return source
 
-    def get_random_enemy(self):
+    def get_random_enemy(self) -> str:
         """ Return the full name of file with random enemy.
 
         """
