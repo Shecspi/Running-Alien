@@ -6,7 +6,7 @@
 import pygame
 
 
-class Coin(pygame.sprite.Sprite):
+class LaserLinelEnemy(pygame.sprite.Sprite):
     def __init__(self, x, y, image, group):
         pygame.sprite.Sprite.__init__(self)
 
@@ -17,6 +17,6 @@ class Coin(pygame.sprite.Sprite):
 
     def update(self, setting):
         if self.rect.x > 0 - self.rect.width:
-            self.rect.x -= setting.get_speed_of_world()
+            self.rect.x -= setting.get_speed_of_world() + 8
         else:
             self.kill()
