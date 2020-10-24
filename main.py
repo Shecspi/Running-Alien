@@ -13,13 +13,13 @@ from modules.Cloud import Cloud
 from modules.Database import Database
 from modules.Grass import Grass
 from modules.Enemies import Enemy
+from modules.Heart import Heart
 from modules.Player import Player
 from modules.Score import Score
 from modules.ScreenMenu import ScreenMenu
 from modules.Setting import Setting
 from modules.SpecialEnemies import LaserLinelEnemy
 from modules.Sprite import Sprite
-
 
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
 
@@ -66,6 +66,9 @@ laser_line_group = pygame.sprite.Group()
 
 # Initialization of cloud's group
 clouds_group = pygame.sprite.Group()
+
+# Initialization of heart's group
+heart_group = pygame.sprite.Group()
 
 # Initialization of coin's groups
 coin_regular_group = pygame.sprite.Group()
@@ -154,12 +157,23 @@ while cycle:
     laser_line_group.draw(screen)
     coin_regular_group.draw(screen)
     coin_laser_group.draw(screen)
+    heart_group.draw(screen)
 
     ###########################################
     # --------------------------------------- #
     # ----- Calculation of game screens ----- #
     # --------------------------------------- #
     ###########################################
+
+    # Display the heart on the screen
+    image_heart = pygame.image.load(sprite.get_heart()).convert_alpha()
+    heart_x = screen_width - 70
+    for i in range(0, setting.get_qty_of_lives_current()):
+        Heart(heart_x,
+              30,
+              image_heart,
+              heart_group)
+        heart_x -= image_heart.get_size()[0] - 15
 
     #######################
     # Screen "Start menu" #
@@ -306,29 +320,35 @@ while cycle:
     elif setting.get_is_died():
         if not setting.get_is_save():
             db.insert_new_score(score.get_current_score())
+            setting.set_qty_of_lives_current(setting.get_qty_of_lives_current() - 1)
+            heart_group.empty()
             setting.set_is_save(True)
 
-        result = screen_menu.display_death_menu(mouse_current_position, is_clicked)
-        if result == 'restart':
-            if score.get_current_score() > score.get_best_score():
-                score.set_best_score(score.get_current_score())
-            else:
-                score.set_best_score(score.get_best_score())
-            score.set_current_score(0)
+        result = screen_menu.display_death_menu(mouse_current_position, is_clicked, setting.get_qty_of_lives_current())
 
+        if result == 'exit':
+            cycle = False
+        elif result == 'restart' or result == 'next_life':
             setting.set_is_died(False)
             setting.set_is_running(True)
             setting.set_is_record(False)
             setting.set_is_jump(False)
             setting.reset_counter_jump()
+            setting.set_is_save(False)
 
             enemies_group.empty()
             laser_line_group.empty()
             coin_regular_group.empty()
             coin_laser_group.empty()
             player_group.rect.bottomleft = (150, screen_height - grass_y)
-        elif result == 'exit':
-            cycle = False
+
+        if result == 'restart':
+            if score.get_current_score() > score.get_best_score():
+                score.set_best_score(score.get_current_score())
+            else:
+                score.set_best_score(score.get_best_score())
+            score.set_current_score(0)
+            setting.set_qty_of_lives_current(setting.get_qty_of_lives_default())
 
     ##################
     # Update counter #

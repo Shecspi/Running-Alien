@@ -9,6 +9,7 @@ from random import randint
 
 class Sprite:
     def __init__(self):
+        self.__dir_sprites = 'resources/sprites/'
         self.__dir_coins = 'resources/sprites/coins/'
         self.__dir_clouds = 'resources/sprites/clouds/'
         self.__dir_enemies = 'resources/sprites/enemies/'
@@ -32,6 +33,7 @@ class Sprite:
 
         self.__font = 'resources/fonts/Chilanka-Regular.ttf'
 
+        self.__heart = 'heart.png'
         self.__platform_grass = 'grass_base.png'
         self.__coin_level_1 = 'coin.png'
         self.__coin_level_2 = 'ruby.png'
@@ -127,3 +129,9 @@ class Sprite:
         lst = os.listdir(self.__dir_enemies)
         source = self.__dir_enemies + lst[randint(0, len(lst) - 1)]
         return source
+
+    def get_heart(self) -> str:
+        """ Return the full name of file with heart.
+
+        """
+        return self.__dir_sprites + self.__heart

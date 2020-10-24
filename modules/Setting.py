@@ -30,8 +30,19 @@ class Setting:
         self.__window_width: int = 1000  # Width of window
         self.__window_height = 600  # Height of window
         self.__speed_of_world: int = 10  # Speed of moving the world
+        self.__qty_of_lives_default = 3
+        self.__qty_of_lives_current = 3
 
         self.__color_background: tuple = (135, 206, 235)
+
+    def get_qty_of_lives_default(self) -> int:
+        return self.__qty_of_lives_default
+
+    def get_qty_of_lives_current(self) -> int:
+        return self.__qty_of_lives_current
+
+    def set_qty_of_lives_current(self, qty: int) -> None:
+        self.__qty_of_lives_current = qty
 
     def get_color_background(self) -> tuple:
         return self.__color_background

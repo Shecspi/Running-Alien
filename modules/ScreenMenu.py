@@ -12,6 +12,7 @@ This class has three public method:
 All these methods return a string depending on which button was clicked.
 
 """
+from typing import Union
 
 import pygame
 from loguru import logger
@@ -228,13 +229,15 @@ class ScreenMenu:
 
     def display_death_menu(self,
                            mouse_position: tuple,
-                           is_clicked: bool) -> str:
+                           is_clicked: bool,
+                           qty_of_lives: int) -> Union[str, None]:
         """
         Displays the menu of the game when player was died.
         Displays title, two buttons 'Restart' and 'Exit', the copyright information.
         :param mouse_position: The current mouse position
         :param is_clicked: 'True' if it was a click, else 'False'
-        :return: Keyword of pressed button - 'restart' or 'exit'
+        :param qty_of_lives: Quantity of lives
+        :return: Keyword of pressed button - 'next_life', 'restart' or 'exit'
         """
         self.__screen.blit(self.__background, (0, 0), None, pygame.BLEND_RGBA_SUB)
 
@@ -243,11 +246,21 @@ class ScreenMenu:
                                       150,
                                       'Game over',
                                       self.__font_size_title)
+        # Button "Use next life"
+        if qty_of_lives > 0:
+            next_life_rect = self.__draw_button(self.__screen_width // 2,
+                                                title_rect.y + title_rect.height + 50,
+                                                self.__green_button,
+                                                self.__green_shadow_button,
+                                                'Use next life',
+                                                mouse_position)
+        else:
+            next_life_rect = title_rect
         # Button "Restart"
         restart_rect = self.__draw_button(self.__screen_width // 2,
-                                          title_rect.y + title_rect.height + 50,
-                                          self.__green_button,
-                                          self.__green_shadow_button,
+                                          next_life_rect.y + next_life_rect.height + 50,
+                                          self.__yellow_button,
+                                          self.__yellow_shadow_button,
                                           'Restart',
                                           mouse_position)
         # Button "Exit"
@@ -262,9 +275,14 @@ class ScreenMenu:
                               exit_rect.y + exit_rect.height + 50)
 
         if is_clicked:
-            if self.__checking_mouse_position(restart_rect, mouse_position):
+            if qty_of_lives > 0 and self.__checking_mouse_position(next_life_rect, mouse_position):
+                logger.info(f'The next life was used. Only {qty_of_lives} lives left.')
+                return 'next_life'
+            elif self.__checking_mouse_position(restart_rect, mouse_position):
                 logger.info("The button 'Restart' was pressed.")
                 return 'restart'
-            if self.__checking_mouse_position(exit_rect, mouse_position):
+            elif self.__checking_mouse_position(exit_rect, mouse_position):
                 logger.info("The button 'Exit' was pressed.")
                 return 'exit'
+            else:
+                return None
