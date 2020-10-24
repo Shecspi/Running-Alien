@@ -145,7 +145,7 @@ class ScreenMenu:
         # Title
         title_rect = self.__draw_text(self.__screen_width // 2,
                                       150,
-                                      'Running Alien ver. 0.2',
+                                      'Running Alien ver. 0.3',
                                       self.__font_size_title)
         # Button "Start"
         start_rect = self.__draw_button(self.__screen_width // 2,
