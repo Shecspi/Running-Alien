@@ -2,23 +2,52 @@
 #
 #  Copyright © 2020 Egor Vavilov (shecspi@gmail.com)
 #  Licensed under the Apache License, Version 2.0
+from random import randint
 
 import pygame
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, y, image):
+    def __init__(self, y, sprite):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = image
+        self.image = pygame.image.load(sprite.get_random_player_stand()).convert_alpha()
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect(bottomleft=(150, y))
 
-    def update(self, image, running=True, is_jump=False, jump_count=0):
-        if running and is_jump:
-            if jump_count > 0:
-                self.rect.y -= (jump_count ** 2) // 2
-            elif jump_count < 0:
-                self.rect.y += (jump_count ** 2) // 2
+        # Spawn jump image or not
+        self.__is_spawned: bool = False
 
-        self.image = pygame.image.load(image)
+        # An image of player
+        self.__image_source: str = self.image
+
+    def update(self, setting, sprite):
+        # Jumping
+        if setting.get_is_jump():
+            # On air
+            if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
+                # Set an image for jumping player (if not set)
+                if not self.__is_spawned:
+                    self.__image_source = sprite.get_random_player_jump()
+                    self.__is_spawned = True
+
+                # If setting.get_counter_jump() > 0 it is moving to up
+                if setting.get_counter_jump() > 0:
+                    self.rect.y -= (setting.get_counter_jump() ** 2) // 2
+                # If setting.get_counter_jump() > 0 it is moving to down
+                elif setting.get_counter_jump() < 0:
+                    self.rect.y += (setting.get_counter_jump() ** 2) // 2
+
+                setting.set_counter_jump(setting.get_counter_jump() - 1)
+            # On ground
+            else:
+                self.__is_spawned = False
+                self.__image_source = sprite.get_next_run_player_sprite()
+
+                setting.set_is_jump(False)
+                setting.reset_counter_jump()
+        # Running
+        else:
+            self.__image_source = sprite.get_next_run_player_sprite()
+
+        self.image = pygame.image.load(self.__image_source)

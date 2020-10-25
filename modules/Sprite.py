@@ -10,10 +10,11 @@ from random import randint
 class Sprite:
     def __init__(self):
         self.__dir_sprites = 'resources/sprites/'
+        self.__dir_blocks = 'resources/sprites/blocks/'
         self.__dir_coins = 'resources/sprites/coins/'
         self.__dir_clouds = 'resources/sprites/clouds/'
-        self.__dir_enemies = 'resources/sprites/enemies/'
-        self.__dir_special_enemies = 'resources/sprites/special_enemies/'
+        self.__dir_enemies = 'resources/sprites/enemies/static/'
+        self.__dir_special_enemies = 'resources/sprites/enemies/special/'
         self.__dir_player_stand = 'resources/sprites/player/stand/'
         self.__dir_player_run = 'resources/sprites/player/run/'
         self.__dir_player_jump = 'resources/sprites/player/jump/'
@@ -67,6 +68,11 @@ class Sprite:
 
     def get_platform_grass(self) -> str:
         return self.__dir_platform + self.__platform_grass
+
+    def get_random_block(self) -> str:
+        lst = os.listdir(self.__dir_blocks)
+        source = self.__dir_blocks + lst[randint(0, len(lst) - 1)]
+        return source
 
     def get_random_player_jump(self) -> str:
         lst = os.listdir(self.__dir_player_jump)

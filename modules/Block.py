@@ -6,7 +6,7 @@
 import pygame
 
 
-class Enemy(pygame.sprite.Sprite):
+class Block(pygame.sprite.Sprite):
     def __init__(self, x, y, image, group):
         pygame.sprite.Sprite.__init__(self)
 

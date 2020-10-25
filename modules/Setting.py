@@ -34,6 +34,10 @@ class Setting:
         self.__qty_of_lives_current = 3
 
         self.__color_background: tuple = (135, 206, 235)
+        self.__background_grass = 'resources/background/bg_grasslands.png'
+
+    def get_background_grass(self) -> str:
+        return self.__background_grass
 
     def get_qty_of_lives_default(self) -> int:
         return self.__qty_of_lives_default

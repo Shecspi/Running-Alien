@@ -8,6 +8,7 @@ from random import randint
 import pygame
 from loguru import logger
 
+from modules.Block import Block
 from modules.Coin import Coin
 from modules.Cloud import Cloud
 from modules.Database import Database
@@ -55,11 +56,12 @@ for i in range(0, qty_of_grass):
     initial_point += grass_x
 
 # Use a random picture for stand player
-player_stand_image = pygame.image.load(sprite.get_random_player_stand()).convert_alpha()
-player_group = Player(screen_height - grass_y, player_stand_image)
+player_group = Player(screen_height - grass_y, sprite)
 
 # Initialization of enemy's group
 enemies_group = pygame.sprite.Group()
+
+blocks_group = pygame.sprite.Group()
 
 # Initialization of laser line's group
 laser_line_group = pygame.sprite.Group()
@@ -84,6 +86,9 @@ frame_counter = 0
 # The formula for the random spawn of enemies
 enemies_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 3)
 frame_enemies_show = randint(*enemies_spawn_formula)
+
+blocks_spawn_formula = (setting.get_fps() // 2, setting.get_fps() * 2)
+frame_counter_blocks = randint(*blocks_spawn_formula)
 
 # The class to draw current and best results on the screen
 score = Score(screen, sprite.get_font())
@@ -151,6 +156,7 @@ while cycle:
 
     # TODO Отвязать анимацию персонажа анимацию от FPS
     clouds_group.draw(screen)
+    blocks_group.draw(screen)
     grass_group.draw(screen)
     screen.blit(player_group.image, player_group.rect)
     enemies_group.draw(screen)
@@ -216,6 +222,13 @@ while cycle:
                   cloud_image,
                   clouds_group)
 
+        if frame_counter == frame_counter_blocks:
+            image_block = pygame.image.load(sprite.get_random_block()).convert_alpha()
+            Block(screen_width + grass_x // 2,
+                  screen_height - 200,
+                  image_block,
+                  blocks_group)
+
         if frame_counter == frame_enemies_show:
             # ----------------------- #
             # Spawn enemies and coins #
@@ -263,22 +276,20 @@ while cycle:
         # ------- #
         # Jumping #
         # ------- #
-        if setting.get_is_jump():
-            # Jumping
-            if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
-                player_group.update(player_jump_src,
-                                    setting.get_is_running(),
-                                    setting.get_is_jump(),
-                                    setting.get_counter_jump())
-                setting.set_counter_jump(setting.get_counter_jump() - 1)
-            else:
-                # Landing
-                setting.set_is_jump(False)
-                setting.reset_counter_jump()
-
-                player_group.update(sprite.get_next_run_player_sprite())
-        else:
-            player_group.update(sprite.get_next_run_player_sprite())
+        # if setting.get_is_jump():
+        #     # Jumping
+        #     if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
+        #         player_group.update(player_jump_src, setting, blocks_group)
+        #         setting.set_counter_jump(setting.get_counter_jump() - 1)
+        #     else:
+        #         # Landing
+        #         setting.set_is_jump(False)
+        #         setting.reset_counter_jump()
+        #
+        #         player_group.update(sprite.get_next_run_player_sprite(), setting)
+        # else:
+        #     player_group.update(sprite.get_next_run_player_sprite(), setting)
+        player_group.update(setting, sprite)
 
         # Update sprites
         grass_group.update(grass_image,
@@ -287,6 +298,7 @@ while cycle:
                            qty_of_grass,
                            center_of_grass_y,
                            setting)
+        blocks_group.update(setting)
         enemies_group.update(setting)
         laser_line_group.update(setting)
         coin_regular_group.update(setting)
@@ -299,11 +311,11 @@ while cycle:
         hit_player_lasercoin = pygame.sprite.spritecollide(player_group, coin_laser_group, True)
         hit_player_laserline = pygame.sprite.spritecollide(player_group, laser_line_group, False)
 
-        if hit_player_enemy or hit_player_laserline:
-            setting.set_is_running(False)
-            setting.set_is_died(True)
-            player_group.update(sprite.get_random_player_hurt())
-            logger.info('Crash!!!')
+        # if hit_player_enemy or hit_player_laserline:
+        #     setting.set_is_running(False)
+        #     setting.set_is_died(True)
+        #     player_group.update(sprite.get_random_player_hurt(), setting)
+        #     logger.info('Crash!!!')
 
         # Checking collision of character and coins
         if hit_player_coin:
