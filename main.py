@@ -39,24 +39,25 @@ screen_menu = ScreenMenu(screen, sprite)
 
 # Initializations of sprites of grass
 grass_image = pygame.image.load(sprite.get_platform_grass())
-grass_x, grass_y = grass_image.get_size()
-qty_of_grass = screen_width // grass_x + 2
+grass_width, grass_height = grass_image.get_size()
+qty_of_grass = screen_width // grass_width + 2
 
 grass_group = pygame.sprite.Group()
 
 # Calculation of quantity of grass sprites
 initial_point = 0
-center_of_grass_y = screen_height - grass_y // 2
+center_of_grass_y = screen_height - grass_height // 2
+ground_line_y = center_of_grass_y - grass_height // 2
 
 for i in range(0, qty_of_grass):
-    Grass(initial_point + grass_x // 2,
+    Grass(initial_point + grass_width // 2,
           center_of_grass_y,
           grass_image,
           grass_group)
-    initial_point += grass_x
+    initial_point += grass_width
 
 # Use a random picture for stand player
-player_group = Player(screen_height - grass_y, sprite)
+player_group = Player(screen_height - grass_height, sprite)
 
 # Initialization of enemy's group
 enemies_group = pygame.sprite.Group()
@@ -217,84 +218,46 @@ while cycle:
             # ------------ #
             cloud_src = sprite.get_random_cloud()
             cloud_image = pygame.image.load(cloud_src).convert_alpha()
-            Cloud(screen_width + grass_x // 2,
+            Cloud(screen_width + grass_width // 2,
                   randint(100, 300),
                   cloud_image,
                   clouds_group)
 
-        if frame_counter == frame_counter_blocks:
-            image_block = pygame.image.load(sprite.get_random_block()).convert_alpha()
-            Block(screen_width + grass_x // 2,
-                  screen_height - 200,
-                  image_block,
-                  blocks_group)
+        # if frame_counter == frame_counter_blocks:
+        #     image_block = pygame.image.load(sprite.get_random_block()).convert_alpha()
+        #     Block(screen_width + grass_x // 2,
+        #           screen_height - 200,
+        #           image_block,
+        #           blocks_group)
 
         if frame_counter == frame_enemies_show:
             # ----------------------- #
             # Spawn enemies and coins #
             # ----------------------- #
-            if randint(1, 5) == 1:
-                # Spawn a laser
-                image_enemy = pygame.image.load(sprite.get_laser_gun()).convert_alpha()
-                image_coin = pygame.image.load(sprite.get_coin_level_2()).convert_alpha()
-                is_laser = True
-            else:
-                # Spawn a regular enemy
-                enemy_source = sprite.get_random_enemy()
-                image_enemy = pygame.image.load(enemy_source).convert_alpha()
-                image_coin = pygame.image.load(sprite.get_coin_level_1()).convert_alpha()
-                is_laser = False
+            is_laser = True if randint(1, 5) == 1 else False
+            coin_group = coin_laser_group if is_laser else coin_regular_group
 
-            image_enemy_x, image_enemy_y, image_enemy_width, image_enemy_height = image_enemy.get_rect()
-            Enemy(screen_width + grass_x // 2,
-                  center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
-                  image_enemy,
-                  enemies_group)
+            enemy = Enemy(setting.get_window_width() + grass_width // 2,
+                          ground_line_y,
+                          sprite,
+                          enemies_group,
+                          is_laser)
 
-            if is_laser:
-                # Spawn a moving laser line and a special laser coin
-                image_laser_line = pygame.image.load(sprite.get_laser_line()).convert_alpha()
-                LaserLinelEnemy(screen_width + grass_x // 2 - image_enemy_width,
-                                center_of_grass_y - grass_y // 2 - image_enemy_height // 2,
-                                image_laser_line,
-                                laser_line_group)
-                coin_group = coin_laser_group
-            else:
-                # Spawn a regular coin
-                coin_group = coin_regular_group
-
-            Coin(screen_width + grass_x // 2,
-                 center_of_grass_y - grass_y // 2 - image_enemy.get_rect()[3] // 2 - 150,
-                 image_coin,
-                 coin_group)
+            Coin(setting.get_window_width() + grass_width // 2,
+                 ground_line_y - enemy.get_height() - 150,
+                 sprite,
+                 coin_group,
+                 is_laser)
 
             frame_counter = 0
             frame_enemies_show = randint(*enemies_spawn_formula)
         else:
             frame_counter += 1
 
-        # ------- #
-        # Jumping #
-        # ------- #
-        # if setting.get_is_jump():
-        #     # Jumping
-        #     if setting.get_counter_jump() >= - setting.get_counter_initial_jump():
-        #         player_group.update(player_jump_src, setting, blocks_group)
-        #         setting.set_counter_jump(setting.get_counter_jump() - 1)
-        #     else:
-        #         # Landing
-        #         setting.set_is_jump(False)
-        #         setting.reset_counter_jump()
-        #
-        #         player_group.update(sprite.get_next_run_player_sprite(), setting)
-        # else:
-        #     player_group.update(sprite.get_next_run_player_sprite(), setting)
-        player_group.update(setting, sprite)
-
         # Update sprites
         grass_group.update(grass_image,
                            grass_group,
-                           grass_x,
+                           grass_width,
                            qty_of_grass,
                            center_of_grass_y,
                            setting)
@@ -305,24 +268,30 @@ while cycle:
         coin_laser_group.update(setting)
         clouds_group.update(setting)
 
+        all_groups = {
+            'enemies': enemies_group,
+            'coin_regular': coin_regular_group,
+            'coin_laser': coin_laser_group,
+            'laser_line': laser_line_group
+        }
+        kill_instance = {
+            'enemies': False,
+            'coin_regular': True,
+            'coin_laser': True,
+            'laser_line': False
+        }
+        hit = player_group.update(setting, sprite, all_groups, kill_instance)
+
         # Checking collision of character and enemies
-        hit_player_enemy = pygame.sprite.spritecollide(player_group, enemies_group, False)
-        hit_player_coin = pygame.sprite.spritecollide(player_group, coin_regular_group, True)
-        hit_player_lasercoin = pygame.sprite.spritecollide(player_group, coin_laser_group, True)
-        hit_player_laserline = pygame.sprite.spritecollide(player_group, laser_line_group, False)
-
-        # if hit_player_enemy or hit_player_laserline:
-        #     setting.set_is_running(False)
-        #     setting.set_is_died(True)
-        #     player_group.update(sprite.get_random_player_hurt(), setting)
-        #     logger.info('Crash!!!')
-
-        # Checking collision of character and coins
-        if hit_player_coin:
+        if hit == 'enemies':
+            setting.set_is_running(False)
+            setting.set_is_died(True)
+        elif hit == 'laser_line':
+            pass
+        elif hit == 'coin_regular':
             score.set_current_score(score.get_current_score() + 1)
             logger.info(f'Found a coin! Your current result is {score.get_current_score()}')
-
-        if hit_player_lasercoin:
+        elif hit == 'coin_laser':
             score.set_current_score(score.get_current_score() + 3)
             logger.info(f'Found a laser-coin! Your current result is {score.get_current_score()}')
 
@@ -352,7 +321,7 @@ while cycle:
             laser_line_group.empty()
             coin_regular_group.empty()
             coin_laser_group.empty()
-            player_group.rect.bottomleft = (150, screen_height - grass_y)
+            player_group.rect.bottomleft = (150, screen_height - grass_height)
 
         if result == 'restart':
             if score.get_current_score() > score.get_best_score():
