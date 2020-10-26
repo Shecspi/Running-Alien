@@ -6,12 +6,14 @@
 import pygame
 
 
-class LaserLinelEnemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, group):
+class LaserLineEnemy(pygame.sprite.Sprite):
+    def __init__(self, initial_x, y, sprite, group):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = image
-        self.rect = self.image.get_rect(center=(x, y))
+        self.__image_source = sprite.get_laser_line()
+        self.image = pygame.image.load(self.__image_source).convert_alpha()
+
+        self.rect = self.image.get_rect(center=(initial_x, y))
 
         self.add(group)
 

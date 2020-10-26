@@ -19,7 +19,7 @@ from modules.Player import Player
 from modules.Score import Score
 from modules.ScreenMenu import ScreenMenu
 from modules.Setting import Setting
-from modules.SpecialEnemies import LaserLinelEnemy
+from modules.SpecialEnemies import LaserLineEnemy
 from modules.Sprite import Sprite
 
 # TODO Избавиться от обращения к глобальным переменным, таких как 'screen'
@@ -212,28 +212,18 @@ while cycle:
     # Screen "Running" #
     ####################
     elif setting.get_is_running():
+        # ------------ #
+        # Spawn clouds #
+        # ------------ #
         if frame_counter == frame_clouds_show:
-            # ------------ #
-            # Spawn clouds #
-            # ------------ #
-            cloud_src = sprite.get_random_cloud()
-            cloud_image = pygame.image.load(cloud_src).convert_alpha()
-            Cloud(screen_width + grass_width // 2,
-                  randint(100, 300),
-                  cloud_image,
+            Cloud(setting.get_window_width() + grass_width // 2,
+                  sprite,
                   clouds_group)
 
-        # if frame_counter == frame_counter_blocks:
-        #     image_block = pygame.image.load(sprite.get_random_block()).convert_alpha()
-        #     Block(screen_width + grass_x // 2,
-        #           screen_height - 200,
-        #           image_block,
-        #           blocks_group)
-
+        # ----------------------- #
+        # Spawn enemies and coins #
+        # ----------------------- #
         if frame_counter == frame_enemies_show:
-            # ----------------------- #
-            # Spawn enemies and coins #
-            # ----------------------- #
             is_laser = True if randint(1, 5) == 1 else False
             coin_group = coin_laser_group if is_laser else coin_regular_group
 
@@ -249,10 +239,16 @@ while cycle:
                  coin_group,
                  is_laser)
 
+            if is_laser:
+                LaserLineEnemy(setting.get_window_width() + grass_width // 2,
+                               ground_line_y - enemy.get_height() // 2,
+                               sprite,
+                               laser_line_group)
+
             frame_counter = 0
             frame_enemies_show = randint(*enemies_spawn_formula)
-        else:
-            frame_counter += 1
+
+        frame_counter += 1
 
         # Update sprites
         grass_group.update(grass_image,
@@ -331,9 +327,9 @@ while cycle:
             score.set_current_score(0)
             setting.set_qty_of_lives_current(setting.get_qty_of_lives_default())
 
-    ##################
-    # Update counter #
-    ##################
+    ################
+    # Update score #
+    ################
     if score.get_current_score() > score.get_best_score() and not setting.get_is_record():
         logger.info("It's a new record!!!")
         setting.set_is_record(True)

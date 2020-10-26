@@ -79,6 +79,12 @@ class Player(pygame.sprite.Sprite):
                 kill_instance: dict) -> str:
         """ Check collide between player and some items from 'all_group'.
 
+        Can return the following values:
+            - enemies
+            - coin_regular
+            - coin_laser
+            - laser_line
+
         :param all_groups: A dict with groups of items.
         :param kill_instance: 'True' if it needs to kill item after collide or 'False' if no need.
         :return: The name of item.

@@ -42,6 +42,11 @@ class Sprite:
         self.__laser_line = 'laser_line.png'  # The name of file with laser line
 
         self.__generate_list_of_player_run()
+        self.__generate_list_of_player_jump()
+        self.__generate_list_of_player_hurt()
+        self.__generate_list_of_player_stand()
+        self.__generate_list_of_clouds()
+        self.__generate_list_of_enemies()
 
     def __generate_list_of_player_run(self) -> None:
         """ Generate the list of files with run player.
@@ -51,6 +56,36 @@ class Sprite:
 
         """
         self.__list_of_run_players = sorted(os.listdir(self.__dir_player_run))
+
+    def __generate_list_of_player_jump(self) -> None:
+        """ Generate the list of files with jumping players.
+
+        """
+        self.__list_of_players_jump = os.listdir(self.__dir_player_jump)
+
+    def __generate_list_of_player_hurt(self) -> None:
+        """ Generate the list of files with hurt players.
+
+        """
+        self.__list_of_players_hurt = os.listdir(self.__dir_player_hurt)
+
+    def __generate_list_of_player_stand(self) -> None:
+        """ Generate the list of files with standing player.
+
+        """
+        self.__list_of_players_stand = os.listdir(self.__dir_player_stand)
+
+    def __generate_list_of_clouds(self) -> None:
+        """ Generate the list of files with clouds.
+
+        """
+        self.__list_of_clouds = os.listdir(self.__dir_clouds)
+
+    def __generate_list_of_enemies(self) -> None:
+        """ Generate the list of files with enemies.
+
+        """
+        self.__list_of_enemies = os.listdir(self.__dir_enemies)
 
     def get_font(self) -> str:
         return self.__font
@@ -75,12 +110,12 @@ class Sprite:
         return source
 
     def get_random_player_jump(self) -> str:
-        lst = os.listdir(self.__dir_player_jump)
+        lst = self.__list_of_players_jump
         source = self.__dir_player_jump + lst[randint(0, len(lst) - 1)]
         return source
 
     def get_random_player_hurt(self) -> str:
-        lst = os.listdir(self.__dir_player_hurt)
+        lst = self.__list_of_players_hurt
         source = self.__dir_player_hurt + lst[randint(0, len(lst) - 1)]
         return source
 
@@ -116,7 +151,7 @@ class Sprite:
         """ Return the full name of file with random stand player.
 
         """
-        lst = os.listdir(self.__dir_player_stand)
+        lst = self.__list_of_players_stand
         source = self.__dir_player_stand + lst[randint(0, len(lst) - 1)]
         return source
 
@@ -124,7 +159,7 @@ class Sprite:
         """ Return the full name of file with random cloud.
 
         """
-        lst = os.listdir(self.__dir_clouds)
+        lst = self.__list_of_clouds
         source = self.__dir_clouds + lst[randint(0, len(lst) - 1)]
         return source
 
@@ -132,7 +167,7 @@ class Sprite:
         """ Return the full name of file with random enemy.
 
         """
-        lst = os.listdir(self.__dir_enemies)
+        lst = self.__list_of_enemies
         source = self.__dir_enemies + lst[randint(0, len(lst) - 1)]
         return source
 
