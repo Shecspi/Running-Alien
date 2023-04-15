@@ -103,7 +103,7 @@ class ScreenMenu:
         """
         copyright_rect = self.__draw_text(x,
                                           y,
-                                          'Copyright © 2020 Egor Vavilov (shecspi@gmail.com)',
+                                          'Copyright © 2020 Egor Vavilov (shecspi@yandex.ru)',
                                           self.__font_size_copyright)
         self.__draw_text(self.__screen_width // 2,
                          copyright_rect.y + copyright_rect.height + 20,
