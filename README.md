@@ -20,7 +20,7 @@ git clone git@github.com:Shecspi/Running-Alien.git
 pip install -r requirements.txt
 ```
 
-3 Launch the game
+3. Launch the game
 ```bash
 python main.py
 ```
